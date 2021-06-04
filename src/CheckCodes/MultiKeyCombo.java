@@ -18,21 +18,21 @@ public class MultiKeyCombo {
     JFrame f = new JFrame("Example JList");
     f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     JComboBox jc = new JComboBox(labels);
-jc.setKeySelectionManager(new KeySelectionManager() {
-	
-	@Override
-	public int selectionForKey(char aKey, ComboBoxModel aModel) {
-		
-		return 5;
-	}
-});
-//    MultiKeySelectionManager mk = new MultiKeySelectionManager();
-//    jc.setKeySelectionManager(mk);
-    //    jc.setKeySelectionManager (new JComboBox.KeySelectionManager() {
-    //      public int selectionForKey (char aKey, ComboBoxModel aModel) {
-    //        return -1;
-    //      }
-    //    });
+//jc.setKeySelectionManager(new KeySelectionManager() {
+//	
+//	@Override
+//	public int selectionForKey(char aKey, ComboBoxModel aModel) {
+//		
+//		return -1;
+//	}
+//});
+    MultiKeySelectionManager mk = new MultiKeySelectionManager();
+    jc.setKeySelectionManager(mk);
+        jc.setKeySelectionManager (new JComboBox.KeySelectionManager() {
+          public int selectionForKey (char aKey, ComboBoxModel aModel) {
+            return -1;
+          }
+        });
     Container c = f.getContentPane();
     c.add(jc, BorderLayout.NORTH);
     f.setSize(200, 200);

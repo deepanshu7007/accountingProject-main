@@ -5,7 +5,7 @@ import javax.swing.JTextField;
 import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-class DTextField extends JTextField implements KeyListener{
+public class DTextField extends JTextField implements KeyListener{
 	public DTextField() {
 		setFont(new Font("Times New Roman", Font.BOLD, 30));
 		addKeyListener(this);

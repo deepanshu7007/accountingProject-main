@@ -86,6 +86,7 @@ public class MainInintials {
 			DataValues.put(str, dm.getValueAt(pos, i));
 			i++;
 		}
+		System.out.println(DataValues);
 		return DataValues;
 	}
 
