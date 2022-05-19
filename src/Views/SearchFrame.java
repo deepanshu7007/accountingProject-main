@@ -25,6 +25,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
+import LedgerMaster.OpenDataBase;
 import accountingproject.DataModelTools;
 
 import java.awt.event.MouseAdapter;
@@ -40,6 +41,7 @@ public class SearchFrame extends JFrame {
 	private String value;
 	private Connection con;
 	private JTextField filterText;
+	private String tableName;
 	private String operationColumn;
 	private Map<String,String> ColumnValues;
 	 private JRadioButton NameRadioButton,AliasRadioButton;
@@ -56,14 +58,29 @@ public class SearchFrame extends JFrame {
 	{
 		return ColumnValues.get(values);
 	}
-	public SearchFrame(String ColumnNames,String tableName) throws SQLException {
+	public SearchFrame(String ColumnNames,String tableName)  {
+		this.tableName = tableName;
+		OpenDataBase db = new OpenDataBase();
 		ColumnValues = new HashMap<String,String>();
 		 setTitle("Search "+tableName);
-		 con = DriverManager.getConnection("jdbc:mysql://localhost:3306/accountingdatabase", "root", "Anshu12345$");
-		 Statement stmt= con.createStatement();
-		ResultSet rs = stmt.executeQuery("Select "+ColumnNames+" from "+tableName);
-		DefaultTableModel model = new DataModelTools().buildTableModel(rs);
-		
+		 con = db.getDataBaseConnection();
+		 Statement stmt;
+		 DefaultTableModel model=null;
+		 ResultSet rs;
+		try {
+			stmt = con.createStatement();
+			rs = stmt.executeQuery("Select "+ColumnNames+" from "+tableName);
+			model = new DataModelTools().buildTableModel(rs);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		try {
+			con.close();
+			System.out.println("DATABASE CONNECTION CLOSED FROM SEARCH FRAME OF :"+tableName);
+		} catch (SQLException exception) {
+			exception.printStackTrace();
+		}
 		table= new JTable(model) {
 	    	@Override
 			public boolean editCellAt(int row, int column, java.util.EventObject e) {
@@ -74,12 +91,7 @@ public class SearchFrame extends JFrame {
 		@Override
 		public void windowClosed(WindowEvent evt)
 		{
-			try {
-				con.close();
-				System.out.println("DATABASE CONNECTION CLOSED FROM SEARCH FRAME OF :"+tableName);
-			} catch (SQLException exception) {
-				exception.printStackTrace();
-			}
+			
 		}
 		public void windowOpened(WindowEvent evt)
 		{
@@ -168,76 +180,55 @@ public class SearchFrame extends JFrame {
 	    		
 	    		if(e.getKeyChar()== KeyEvent.VK_ENTER)
 	    		{
-	    			String type="";
-					if(NameRadioButton.isSelected())
-					{
-	type="NAME";
-	value = table.getValueAt(table.getSelectedRow(),1).toString();
-					}
-					if(AliasRadioButton.isSelected())
-					{
-	type="ALIAS";
-	value = table.getValueAt(table.getSelectedRow(),0).toString();
-					}
-	    			try {
-						Statement stmt=con.createStatement();
-						ResultSet rs = stmt.executeQuery("SELECT * FROM "+tableName+" WHERE "+type+"='"+value+"'");
-						ResultSetMetaData meta = rs.getMetaData();
-						while(rs.next())
-						{
-							for(int i=1;i<=meta.getColumnCount();i++)
-							{
-								String key = meta.getColumnName(i);
-								String value = rs.getString(key);
-								ColumnValues.put(key,value);
-							}
-						}
-						System.out.println(ColumnValues);
-					} catch (SQLException exception) {
-						exception.printStackTrace();
-					}
-	    			 dispose();
+	    			assigningForm();
 	    		}
 	    	}
 	    });   
 	    table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				String type="";
-				if(NameRadioButton.isSelected())
-				{
-type="NAME";
-value = table.getValueAt(table.getSelectedRow(),1).toString();
-				}
-				if(AliasRadioButton.isSelected())
-				{
-type="ALIAS";
-value = table.getValueAt(table.getSelectedRow(),0).toString();
-				}
-					
-    			try {
-					Statement stmt=con.createStatement();
-					ResultSet rs = stmt.executeQuery("SELECT * FROM "+tableName+" WHERE "+type+"='"+value+"'");
-					ResultSetMetaData meta = rs.getMetaData();
-					while(rs.next())
-					{
-						for(int i=1;i<=meta.getColumnCount();i++)
-						{
-							String key = meta.getColumnName(i);
-							String value = rs.getString(key);
-							ColumnValues.put(key,value);
-						}
-					}
-					System.out.println(ColumnValues);
-				} catch (SQLException exception) {
-					
-					exception.printStackTrace();
-				}
-    			 dispose();
+				assigningForm();
 			}
 		});
 	    table.setRowSelectionInterval(0, 0);
 	     setSize(1163, 882);
 	     filterText.requestFocus();
+	}
+	private void assigningForm()
+	{
+		String type="";
+		if(NameRadioButton.isSelected())
+		{
+type="NAME";
+value = table.getValueAt(table.getSelectedRow(),1).toString();
+		}
+		if(AliasRadioButton.isSelected())
+		{
+type="ALIAS";
+value = table.getValueAt(table.getSelectedRow(),0).toString();
+		}
+		OpenDataBase db;
+		try {
+			db = new OpenDataBase();
+			
+			Statement stmt=db.getDataBaseConnection().createStatement();
+			ResultSet rs = stmt.executeQuery("SELECT * FROM "+tableName+" WHERE "+type+"='"+value+"'");
+			ResultSetMetaData meta = rs.getMetaData();
+			while(rs.next())
+			{
+				for(int i=1;i<=meta.getColumnCount();i++)
+				{
+					String key = meta.getColumnName(i);
+					String value = rs.getString(key);
+					ColumnValues.put(key,value);
+				}
+			}
+			System.out.println(ColumnValues);
+			db.ConClosed();
+			dispose();
+		} catch (SQLException exception) {
+			exception.printStackTrace();
+		}
+		 
 	}
 }

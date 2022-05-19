@@ -9,6 +9,9 @@ import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
 import javax.swing.SwingUtilities;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+
 import java.util.Map;
 import java.util.Vector;
 
@@ -79,7 +82,6 @@ public class SearchFrameTest extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				Name = (table.getValueAt(table.getSelectedRow(), 1).toString());
 				alias = (table.getValueAt(table.getSelectedRow(), 0).toString());
-				
 				SelectedRow.add(alias);
 				SelectedRow.add(Name);
 				dispose();
@@ -92,7 +94,6 @@ public class SearchFrameTest extends JFrame {
 			Name = (table.getValueAt(table.getSelectedRow(), 1).toString());
 			SelectedRow.add(alias);
 			SelectedRow.add(Name);
-			
 			dispose();
 		}
 		});
@@ -103,6 +104,7 @@ public class SearchFrameTest extends JFrame {
 		JScrollPane pane = new JScrollPane(table);
 		getContentPane().add(pane, BorderLayout.CENTER);
 		sorter = new TableRowSorter<TableModel>();
+		table.setRowSorter(sorter);
 		sorter.setModel(dtm);
 		
 		JPanel panel = new JPanel();
@@ -144,7 +146,27 @@ public class SearchFrameTest extends JFrame {
 				}
 			}
 		});
-		
+		FilterText.getDocument().addDocumentListener(new DocumentListener() {
+	         @Override
+	         public void insertUpdate(DocumentEvent e) {
+	            search(FilterText.getText());
+	         }
+	         @Override
+	         public void removeUpdate(DocumentEvent e) {
+	            search(FilterText.getText());
+	         }
+	         @Override
+	         public void changedUpdate(DocumentEvent e) {
+	            search(FilterText.getText());
+	         }
+	         public void search(String str) {
+	            if (str.length() == 0) {
+	               sorter.setRowFilter(null);
+	            } else {
+	               sorter.setRowFilter(RowFilter.regexFilter(str));
+	            }
+	         }
+	      });
 		GridBagConstraints gbc_FilterText = new GridBagConstraints();
 		gbc_FilterText.gridwidth = 2;
 		gbc_FilterText.insets = new Insets(0, 0, 0, 5);
@@ -155,5 +177,23 @@ public class SearchFrameTest extends JFrame {
 		panel.add(FilterText, gbc_FilterText);
 		FilterText.requestFocus();
 		setSize(1163, 882);
+	}
+
+	/**
+	 * TODO Put here a description of what this method does.
+	 *
+	 */
+	public String getAliasName() {
+		return table.getValueAt(table.getSelectedRow(), 0).toString();
+		
+	}
+
+	/**
+	 * TODO Put here a description of what this method does.
+	 *
+	 * @return
+	 */
+	public String getAccountName() {
+		return table.getValueAt(table.getSelectedRow(), 1).toString();
 	}
 }

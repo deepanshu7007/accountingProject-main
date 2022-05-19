@@ -356,22 +356,18 @@ public class DivisionMaster extends JFrame implements MasterPresistables{
 	public void viewRecord() {
 		SaveButton.setEnabled(false);
 		SearchFrame sf;
-		try {
-			sf = new SearchFrame("ALIAS,NAME", "DIVISIONMASTER");
-			sf.setVisible(true);
-			sf.addWindowListener(new WindowAdapter() {
-				@Override
-				public void windowClosed(WindowEvent evt) {
-					NameField.setText(sf.get("NAME"));
-					AliasField.setText(sf.get("ALIAS"));
-					DaysField.setText(sf.get("NO_DAYS"));
-					InventoryBox.setSelectedItem(sf.get("INVENTORY"));
-					setVisible(true);
-				}
-			});
-		} catch (SQLException exception) {
-			exception.printStackTrace();
-		}
+		sf = new SearchFrame("ALIAS,NAME", "DIVISIONMASTER");
+		sf.setVisible(true);
+		sf.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosed(WindowEvent evt) {
+				NameField.setText(sf.get("NAME"));
+				AliasField.setText(sf.get("ALIAS"));
+				DaysField.setText(sf.get("NO_DAYS"));
+				InventoryBox.setSelectedItem(sf.get("INVENTORY"));
+				setVisible(true);
+			}
+		});
 
 		
 	}

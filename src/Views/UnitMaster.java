@@ -261,21 +261,17 @@ public class UnitMaster extends JFrame implements MasterPresistables {
 	public void viewRecord() {
 		SaveButton.setEnabled(false);
 		SearchFrame sf;
-		try {
-			sf = new SearchFrame("ALIAS,NAME", "UNITMASTER");
-			sf.setVisible(true);
-			sf.addWindowListener(new WindowAdapter() {
-				@Override
-				public void windowClosed(WindowEvent evt) {
-					NameField.setText(sf.get("NAME"));
-					AliasField.setText(sf.get("ALIAS"));
-					BagBox.setSelectedItem(sf.get("UNIT"));
-					setVisible(true);
-				}
-			});
-		} catch (SQLException exception) {
-			exception.printStackTrace();
-		}
+		sf = new SearchFrame("ALIAS,NAME", "UNITMASTER");
+		sf.setVisible(true);
+		sf.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosed(WindowEvent evt) {
+				NameField.setText(sf.get("NAME"));
+				AliasField.setText(sf.get("ALIAS"));
+				BagBox.setSelectedItem(sf.get("UNIT"));
+				setVisible(true);
+			}
+		});
 
 	}
 

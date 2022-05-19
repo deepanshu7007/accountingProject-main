@@ -9,6 +9,9 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.sql.PreparedStatement;
@@ -17,6 +20,7 @@ import java.sql.SQLException;
 import javax.swing.JTextPane;
 import javax.swing.text.JTextComponent;
 
+import LedgerMaster.OpenDataBase;
 import accountingproject.mainInintials;
 
 import java.awt.Font;
@@ -44,7 +48,7 @@ public class AccountPanel extends JFrame {
 	protected mainInintials.MainTools mi;
 	public AccountPanel(String title) {
 		
-		mi = new mainInintials.MainTools();
+		
 		setBounds(100, 100, 859, 725);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		GridBagLayout gridBagLayout = new GridBagLayout();
@@ -393,7 +397,8 @@ public class AccountPanel extends JFrame {
 							JOptionPane.showMessageDialog(null, "This Field should not be empty");
 							NameField.requestFocus();
 						} else {
-							AliasField.setText(mi.getAliasName(NameField.getText()));
+							OpenDataBase db = new OpenDataBase();
+							AliasField.setText(db.getAliasName(NameField.getText()));
 							SubGroupField.requestFocus();
 						}
 					}
@@ -403,20 +408,16 @@ public class AccountPanel extends JFrame {
 				@Override
 				public void keyPressed(KeyEvent e) {
 					if (e.getKeyChar() == e.VK_ENTER) {
-						try {
-							if (e.getKeyChar() == e.VK_ENTER) {
-									PriorityField.requestFocus();
-									sf = new SearchFrame("ALIAS,NAME","SubGroupMaster");
-									sf.setVisible(true);
-									sf.addWindowListener(new WindowAdapter() {
-										public void windowClosed(WindowEvent e) {
-											SubGroupField.setText(sf.get("NAME"));
-										}
-									});
-								}
-						} catch (SQLException exception) {
-							exception.printStackTrace();
-						}
+						if (e.getKeyChar() == e.VK_ENTER) {
+								PriorityField.requestFocus();
+								sf = new SearchFrame("ALIAS,NAME","SUBGROUPMASTER");
+								sf.setVisible(true);
+								sf.addWindowListener(new WindowAdapter() {
+									public void windowClosed(WindowEvent e) {
+										SubGroupField.setText(sf.get("NAME"));
+									}
+								});
+							}
 					}
 				}
 			});
@@ -431,18 +432,24 @@ public class AccountPanel extends JFrame {
 					}
 				}
 			});
+			SaveButton.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent arg0) {
+					
+						if(NameField.getText().isEmpty()||AliasField.getText().isEmpty()||PriorityField.getText().isEmpty()||SubGroupField.getText().isEmpty()) {
+							JOptionPane.showMessageDialog(null, "Some of the major fields are Empty");
+						}else
+						InsertTable();
+					
+				}
+			});
 		}
 		if(title.equals("UPDATE"))
 		{
 			AliasField.setEditable(false);
 			setVisible(true);
-			try {
-				sf = new SearchFrame("ALIAS,NAME","ACCOUNTMASTER");
-				sf.setVisible(true);
-			} catch (SQLException exception1) {
-				// TODO Auto-generated catch-block stub.
-				exception1.printStackTrace();
-			}
+			sf = new SearchFrame("ALIAS,NAME","ACCOUNTMASTER");
+			sf.setVisible(true);
 			
 			sf.addWindowListener(new WindowAdapter() {
 				public void windowClosed(WindowEvent e)
@@ -508,23 +515,17 @@ public class AccountPanel extends JFrame {
 				@Override
 				public void keyPressed(KeyEvent e) {
 					if (e.getKeyChar() == e.VK_ENTER) {
-						try {
-							if (e.getKeyChar() == e.VK_ENTER) {
-								
-									PriorityField.requestFocus();
-									sf = new SearchFrame("ALIAS,NAME","SubGroupMaster");
-									sf.setVisible(true);
-									sf.addWindowListener(new WindowAdapter() {
-										public void windowClosed(WindowEvent e) {
-											SubGroupField.setText(sf.get("NAME"));
-										}
-									});
-								}
+						if (e.getKeyChar() == e.VK_ENTER) {
 							
-//						groupField.setText(sf.get("NAME"));
-						} catch (SQLException exception) {
-							exception.printStackTrace();
-						}
+								PriorityField.requestFocus();
+								sf = new SearchFrame("ALIAS,NAME","SubGroupMaster");
+								sf.setVisible(true);
+								sf.addWindowListener(new WindowAdapter() {
+									public void windowClosed(WindowEvent e) {
+										SubGroupField.setText(sf.get("NAME"));
+									}
+								});
+							}
 					}
 				}
 			});
@@ -549,13 +550,8 @@ public class AccountPanel extends JFrame {
 			AliasField.setEditable(false);
 			PriorityField.setEditable(false);
 			setVisible(true);
-			try {
-				sf = new SearchFrame("ALIAS,NAME","ACCOUNTMASTER");
-				sf.setVisible(true);
-			} catch (SQLException exception1) {
-				// TODO Auto-generated catch-block stub.
-				exception1.printStackTrace();
-			}
+			sf = new SearchFrame("ALIAS,NAME","ACCOUNTMASTER");
+			sf.setVisible(true);
 			
 			sf.addWindowListener(new WindowAdapter() {
 				public void windowClosed(WindowEvent e)
@@ -583,7 +579,8 @@ public class AccountPanel extends JFrame {
 void UpdateTable()
 {
 	try {
-		PreparedStatement stmt = mainInintials.con.prepareStatement(
+		OpenDataBase db = new OpenDataBase();
+		PreparedStatement stmt = db.getDataBaseConnection().prepareStatement(
 				"UPDATE ACCOUNTMASTER SET NAME=?,SUBGROUP=?,ADDRESS=?,CITY=?,STATE=?,PINCODE=?,PHONE=?,E_MAIL=?,PANNUM=?,TANNUM=?,GSTNUM=?,USER_IN=?,OP_BAL=?,COMMENT=?,PRIORITY=? WHERE ALIAS=?");
 		stmt.setString(1, NameField.getText());
 		stmt.setString(16, AliasField.getText());
@@ -624,6 +621,7 @@ void UpdateTable()
 		} else {
 			JOptionPane.showMessageDialog(null, "Something Went Wrong");
 		}
+		db.ConClosed();
 	} catch (SQLException exception) {
 		if (exception.getErrorCode() == 1062) {
 			JOptionPane jp = new JOptionPane();
@@ -640,7 +638,8 @@ void UpdateTable()
 }
 	void InsertTable() {
 		try {
-			PreparedStatement stmt = mainInintials.con.prepareStatement(
+			OpenDataBase db = new OpenDataBase();
+			PreparedStatement stmt = db.getDataBaseConnection().prepareStatement(
 					"INSERT INTO ACCOUNTMASTER(NAME,ALIAS,SUBGROUP,ADDRESS,CITY,STATE,PINCODE,PHONE,E_MAIL,PANNUM,TANNUM,GSTNUM,USER_IN,OP_BAL,COMMENT,PRIORITY) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 			stmt.setString(1, NameField.getText());
 			stmt.setString(2, AliasField.getText());
@@ -680,6 +679,8 @@ void UpdateTable()
 			} else {
 				JOptionPane.showMessageDialog(null, "Something Went Wrong");
 			}
+			db.ConClosed();
+			System.out.println("CONNECTION CLOSED FOR ACCOUNT MASTER INSERT");
 		} catch (SQLException exception) {
 			if (exception.getErrorCode() == 1062) {
 				JOptionPane jp = new JOptionPane();

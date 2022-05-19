@@ -2,76 +2,102 @@ package TransactionsMaster;
 //FOR THE MODIFICATION FOR THE DEBIT AND CREDIT SIDE OF THE TABLE EDIT THE IS CELL EDITABLE AND ALSO USE JTEXTFIELD TO MODIFY THE TEXT OF THE DEBIT AND CREIDT SIDES
 
 import java.awt.*;
-import java.awt.List;
 import java.awt.event.*;
 import java.awt.print.PrinterException;
-import java.sql.*;
-import java.text.*;
 import java.util.*;
 import java.util.Date;
-
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.event.*;
-import javax.swing.table.*;
-import com.toedter.calendar.*;
+import javax.swing.text.Caret;
+import javax.swing.text.JTextComponent;
 
+import org.jdesktop.swingx.JXDatePicker;
 import SearchModule.SearchFrameTest;
 import SearchModule.SearchTableModel;
-import Views.DTextField;
-import sun.reflect.misc.ReflectUtil;
-import sun.swing.SwingUtilities2;
 
 public class VoucherTransaction extends JFrame {
+	public void setTableModel(DataBaseModel dtm) {
+		this.dtm = dtm;
+	}
+	private JButton btnNewButton_1_1_1;
+	public JButton getButton() {
+		return this.btnNewButton_1_1_1;
+	}
 	private JPanel contentPane;
 	private JComboBox<String> comboBox;
-	private Connection con;
-	/**
-	 * Returns the value of the field called 'con'.
-	 * @return Returns the con.
-	 */
-	public Connection getCon() {
-		return this.con;
-	}
-
-	private JTextField NarrationField;
 	
-	public JTextField getNarrationField() {
-		return this.NarrationField;
+	public String getComboBox() {
+		return this.comboBox.getSelectedItem().toString();
+	}
+	private JTextField NarrationField;
+
+	public String getNarrationField() {
+		return this.NarrationField.getText();
+	}
+	public void setNarrationField(String str) {
+		this.NarrationField.setText(str);
 	}
 
-	private JDateChooser textField_1;
-	/**
-	 * Returns the value of the field called 'textField_1'.
-	 * @return Returns the textField_1.
-	 */
+	private JXDatePicker textField_1;
+
+
 	public Date getDate() {
 		return this.textField_1.getDate();
 	}
 
+	public void setDate(Date d) {
+		 this.textField_1.setDate(d);
+	}
+	
 	private JFormattedTextField DebitTotalField, CreditTotalField;
+	
+	public JFormattedTextField getDebitTotalField() {
+		return this.DebitTotalField;
+	}
+
+	public void clearDebitTotalField() {
+		this.DebitTotalField.setText("0.0");
+	}
+	
+	public JFormattedTextField getCreditTotalField() {
+		return this.CreditTotalField;
+	}
+	
+	public void clearCreditTotalField() {
+		this.CreditTotalField.setText("0.0");
+		this.dtm.setTotalDebit(0.00);
+		this.dtm.setTotalCredit(0.00);
+	}
+	public void setDebitTotalField(double amount) {
+		this.DebitTotalField.setText(String.valueOf(amount));
+		this.dtm.setTotalDebit(amount);
+		
+	}
+	public void setCreditTotalField(double amount) {
+		this.CreditTotalField.setText(String.valueOf(amount));
+		this.dtm.setTotalCredit(amount);
+	}
 	private int row;
 	private JTable table;
-	
 	private SearchTableModel SearchModel;
-private JComboBox<String> comboBox_1;
-private CustomTableModel dtm;
+	private JComboBox<String> comboBox_1;
+	private DataBaseModel dtm;
+
 	public void setSearchModel(SearchTableModel SearchModel) {
 		this.SearchModel = SearchModel;
 	}
 
-	public VoucherTransaction(Connection con) {
-		this.con=con;
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	public VoucherTransaction(DataBaseModel dtm) {
+		this.dtm = dtm;
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 1549, 768);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(contentPane);
-		DataEntry de = new DataEntry("", 0.0, 0.0);
-		ArrayList<DataEntry> arr = new ArrayList<DataEntry>();
-		arr.add(de);
-		 dtm = new CustomTableModel(arr);
+		table = new JTable();
+		table.setModel(dtm);
 		dtm.addTableModelListener(new TableModelListener() {
 
 			@Override
@@ -88,6 +114,7 @@ private CustomTableModel dtm;
 				}
 			}
 		});
+//		table.setFocusable(false);
 		JPanel LeftPanel = new JPanel();
 		LeftPanel.setBackground(Color.CYAN);
 		contentPane.add(LeftPanel, BorderLayout.WEST);
@@ -107,11 +134,11 @@ private CustomTableModel dtm;
 		gbc_lblNewLabel_1_1.gridy = 0;
 		LeftPanel.add(lblNewLabel_1_1, gbc_lblNewLabel_1_1);
 
-		textField_1 = new JDateChooser();
+		textField_1 = new JXDatePicker();
 		Date dNow = new Date();
 		textField_1.setDate(dNow);
 		textField_1.setFont(new Font("Calibre", Font.PLAIN, 20));
-		textField_1.setDateFormatString("d/MM/yyyy");
+		textField_1.setFormats("d/MM/yyyy");
 		GridBagConstraints gbc_textField_1 = new GridBagConstraints();
 		gbc_textField_1.insets = new Insets(0, 0, 5, 0);
 		gbc_textField_1.gridwidth = 2;
@@ -138,7 +165,7 @@ private CustomTableModel dtm;
 		gbc_lblNewLabel_1_1_1_1.gridy = 2;
 		LeftPanel.add(lblNewLabel_1_1_1_1, gbc_lblNewLabel_1_1_1_1);
 
-		 comboBox = new JComboBox<>();
+		comboBox = new JComboBox<>();
 		comboBox.setModel(new DefaultComboBoxModel<String>(new String[] { "CV", "JV" }));
 		comboBox.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		GridBagConstraints gbc_comboBox = new GridBagConstraints();
@@ -219,8 +246,9 @@ private CustomTableModel dtm;
 		panel_1.add(CreditTotalField);
 
 		NarrationField = new JTextField();
+		NarrationField.setCaretColor(Color.CYAN);
 		NarrationField.setForeground(Color.WHITE);
-		NarrationField.setBackground(Color.BLACK);
+		NarrationField.setBackground(Color.DARK_GRAY);
 		NarrationField.setFont(new Font("Tahoma", Font.PLAIN, 25));
 		NarrationField.setColumns(10);
 
@@ -253,13 +281,13 @@ private CustomTableModel dtm;
 
 		JButton btnNewButton_1 = new JButton("PRINT");
 		btnNewButton_1.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
 					table.print();
 				} catch (PrinterException exception) {
-					// TODO Auto-generated catch-block stub.
+					
 					exception.printStackTrace();
 				}
 			}
@@ -272,34 +300,9 @@ private CustomTableModel dtm;
 		gbc_btnNewButton_1.gridy = 2;
 		panel.add(btnNewButton_1, gbc_btnNewButton_1);
 
-		JButton btnNewButton_1_1_1 = new JButton("SAVE");
+		 btnNewButton_1_1_1 = new JButton("SAVE");
 		img = new ImageIcon(this.getClass().getResource("/save.png")).getImage();
 		btnNewButton_1_1_1.setIcon(new ImageIcon(img));
-		btnNewButton_1_1_1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				try {
-					int row = 0;
-					while (row < table.getRowCount()) {
-						if (table.getValueAt(row, 0).equals("")) {
-							throw new Exception("One or More Transaction Fields are empty");
-						}
-						row++;
-					}
-					if (DebitTotalField.getText().equals(CreditTotalField.getText())) {
-						CommitTheVoucher();
-						JOptionPane.showMessageDialog(null, "SUCCESSFULLY SUBMITTED");
-					}
-					else
-					{
-						throw new Exception("Debit and Credit Values are not Equal");
-					}
-					
-				}catch(Exception ex) {
-					ex.printStackTrace();
-					JOptionPane.showMessageDialog(null, ex);
-				}
-			}
-		});
 		btnNewButton_1_1_1.setFont(new Font("Tahoma", Font.PLAIN, 30));
 		GridBagConstraints gbc_btnNewButton_1_1_1 = new GridBagConstraints();
 		gbc_btnNewButton_1_1_1.fill = GridBagConstraints.VERTICAL;
@@ -311,7 +314,7 @@ private CustomTableModel dtm;
 		lblNewLabel_3.setFont(new Font("Tahoma", Font.PLAIN, 30));
 		contentPane.add(lblNewLabel_3, BorderLayout.NORTH);
 
-		table = new JTable();
+		
 		table.setShowGrid(true);
 		table.setFont(new Font("Tahoma", Font.PLAIN, 25));
 		table.setRowHeight(38);
@@ -319,7 +322,7 @@ private CustomTableModel dtm;
 		table.setColumnSelectionAllowed(false);
 		table.setCellSelectionEnabled(true);
 		table.setSurrendersFocusOnKeystroke(true);
-		table.setModel(dtm);
+		
 		table.getTableHeader().setFont(new Font("CALIBRE", Font.BOLD, 29));
 		contentPane.add(table, BorderLayout.EAST);
 
@@ -337,17 +340,21 @@ private CustomTableModel dtm;
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JTable tab = (JTable) e.getSource();
-				if (tab.getRowCount() <= 0) {
-					DefaultTableModel dm = (DefaultTableModel) tab.getModel();
-					dm.addRow(new Object[] { "", new Double(0), new Double(0) });
-				}
+				
 				if (tab.isEditing()) {
 					tab.getCellEditor().stopCellEditing();
 				}
+				
 				row = tab.getSelectedRow();
 				int col = tab.getSelectedColumn();
+				if (tab.getRowCount() <= 0) {
+					DataBaseModel dm = (DataBaseModel) tab.getModel();
+					DataEntry de = new DataEntry("", 0.0, 0.0);
+					dm.addRow(de);
+					tab.changeSelection(row + 1, 0, false, false);
+				}
 				if (col == tab.getColumnCount() - 1 && row == tab.getRowCount() - 1) {
-					CustomTableModel dm = (CustomTableModel) tab.getModel();
+					DataBaseModel dm = (DataBaseModel) tab.getModel();
 					DataEntry de = new DataEntry("", 0.0, 0.0);
 					dm.addRow(de);
 					tab.changeSelection(row + 1, 0, false, false);
@@ -365,6 +372,7 @@ private CustomTableModel dtm;
 		});
 		Font font = new Font("CALIBRE", Font.PLAIN, 25);
 		JTextField TransactionField = new JTextField();
+		
 		TransactionField.setFont(font);
 		DefaultCellEditor TransEditor = new DefaultCellEditor(TransactionField);
 		TransEditor.addCellEditorListener(new CellEditorListener() {
@@ -373,14 +381,15 @@ private CustomTableModel dtm;
 			public void editingStopped(ChangeEvent e) {
 				SearchFrameTest ft;
 				ft = new SearchFrameTest(SearchModel);
+                                ft.setAlwaysOnTop(true);
 				if (!SearchModel.checkAlias(TransactionField.getText())) {
 					ft.setFilterText(TransactionField.getText());
 					ft.setVisible(true);
 					ft.addWindowListener(new WindowAdapter() {
-					public void windowClosed(WindowEvent evt)
-					{
-						dtm.nextSetValueAt(ft.getSelectedRow(), table.getSelectedRow(), table.getSelectedColumn());
-					}
+						@Override
+						public void windowClosed(WindowEvent evt) {
+							dtm.nextSetValueAt(ft.getSelectedRow(), table.getSelectedRow(), table.getSelectedColumn());
+						}
 					});
 				} else {
 					Object AliasName = TransactionField.getText();
@@ -391,8 +400,10 @@ private CustomTableModel dtm;
 					dtm.nextSetValueAt(row, table.getSelectedRow(), table.getSelectedColumn());
 				}
 			}
+
 			@Override
-			public void editingCanceled(ChangeEvent e) {}
+			public void editingCanceled(ChangeEvent e) {
+			}
 		});
 		table.getColumnModel().getColumn(0).setCellEditor(TransEditor);
 		GenericEditorForFields ge = new GenericEditorForFields(table);
@@ -411,7 +422,7 @@ private CustomTableModel dtm;
 				else {
 					int row = tab.getSelectedRow();
 					int col = tab.getSelectedColumn();
-					CustomTableModel dm = (CustomTableModel) tab.getModel();
+					DataBaseModel dm = (DataBaseModel) tab.getModel();
 					if (row == 0) {
 						dm.removeRow(row);
 						tab.changeSelection(row + 1, col, false, false);
@@ -423,20 +434,12 @@ private CustomTableModel dtm;
 			}
 		});
 	}
-	public void CommitTheVoucher() {
-		Connection Con = getCon();
-		String Nar = getNarrationField().getText();
-		Date date = getDate();
-		ArrayList<DataEntry> arr = dtm.getDataEntryList();
-		String SelectedItem = comboBox.getSelectedItem().toString();
-		try {
-			System.out.println(Con.isClosed());
-		} catch (SQLException exception) {
-			// TODO Auto-generated catch-block stub.
-			exception.printStackTrace();
-		}
-		DataBaseModel dbm = new DataBaseModel(Con, arr,  date,  Nar,SelectedItem ); 
-		}
+
+	public void clearVoucher() {
+		this.dtm.getDataEntryList().clear();
+		this.dtm.addRow(new DataEntry("",0,0));
+		this.setNarrationField("");
+		this.clearCreditTotalField();
+		this.clearDebitTotalField();
+	}
 }
-
-

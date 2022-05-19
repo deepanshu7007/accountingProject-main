@@ -3,6 +3,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import LedgerMaster.OpenDataBase;
 import accountingproject.DataModelTools;
 import accountingproject.mainInintials;
 import javax.swing.JLabel;
@@ -14,6 +15,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.awt.Font;
 import javax.swing.JButton;
 import java.awt.event.KeyAdapter;
@@ -174,22 +176,17 @@ public class SubGroupPanel extends JFrame{
 		{
 			saveButton.setEnabled(false);
 			setVisible(true);
-			try {
-				sf = new SearchFrame("ALIAS,NAME","SUBGROUPMASTER");
-				sf.setVisible(true);
-				sf.addWindowListener(new WindowAdapter() {
-				public void windowClosed(WindowEvent e)
-				{
-					nameField.setText(sf.get("NAME"));
-					aliasField.setText(sf.get("ALIAS"));
-					priorityField.setText(sf.get("PRIORITY"));
-					groupField.setText(sf.get("GROUP_ALIAS"));
-				}
-				});
-			} catch (SQLException exception) {
-				// TODO Auto-generated catch-block stub.
-				exception.printStackTrace();
+			sf = new SearchFrame("ALIAS,NAME","SUBGROUPMASTER");
+			sf.setVisible(true);
+			sf.addWindowListener(new WindowAdapter() {
+			public void windowClosed(WindowEvent e)
+			{
+				nameField.setText(sf.get("NAME"));
+				aliasField.setText(sf.get("ALIAS"));
+				priorityField.setText(sf.get("PRIORITY"));
+				groupField.setText(sf.get("GROUP_ALIAS"));
 			}
+			});
 			nameField.setEditable(false);
 			aliasField.setEditable(false);
 			priorityField.setEnabled(false);
@@ -211,7 +208,8 @@ public class SubGroupPanel extends JFrame{
 					}
 					else
 					{
-						aliasField.setText(mi.getAliasName(nameField.getText()));
+						OpenDataBase db = new OpenDataBase();
+						aliasField.setText(db.getAliasName(nameField.getText()));
 					aliasField.requestFocus();
 					}
 					}
@@ -253,7 +251,7 @@ public class SubGroupPanel extends JFrame{
 				if(evt.getKeyCode()==KeyEvent.VK_ENTER)
 				{
 				try {
-					Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/accountingdatabase", "root", "Anshu12345$");
+					Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/accountingdatabase", "deepanshu", "Anshu123$");
 					DataModelTools dm = new DataModelTools(con);
 					if(dm.getNameByAlias(groupField.getText(), "GROUPMASTER").isEmpty())
 					{
@@ -346,21 +344,17 @@ public class SubGroupPanel extends JFrame{
 				
 				groupField.addKeyListener(new KeyAdapter() {
 				public void keyPressed(KeyEvent e) {
-							try {
-								if(e.getKeyChar() == e.VK_ENTER)
-								{
-										
-											sf = new SearchFrame("ALIAS,NAME","GroupMaster");
-											sf.setVisible(true);
-											 sf.addWindowListener(new WindowAdapter(){  
-										            public void windowClosed(WindowEvent e) {  
-										            	groupField.setText(sf.get("NAME"));
-										            }  
-										        });  
-									}
-								} catch (SQLException exception) {
-								exception.printStackTrace();
-							}
+							if(e.getKeyChar() == e.VK_ENTER)
+							{
+									
+										sf = new SearchFrame("ALIAS,NAME","GroupMaster");
+										sf.setVisible(true);
+										 sf.addWindowListener(new WindowAdapter(){  
+									            public void windowClosed(WindowEvent e) {  
+									            	groupField.setText(sf.get("NAME"));
+									            }  
+									        });  
+								}
 						}
 			});
 				saveButton.addMouseListener(new MouseAdapter() {
@@ -389,7 +383,8 @@ public class SubGroupPanel extends JFrame{
 	void InsertTable()
 	{
 		try {
-			PreparedStatement stmt=mainInintials.con.prepareStatement("INSERT INTO SUBGROUPMASTER(NAME,ALIAS,PRIORITY,GROUP_ALIAS) VALUES (?,?,?,?)");
+			OpenDataBase db=new OpenDataBase();
+			PreparedStatement stmt=db.getDataBaseConnection().prepareStatement("INSERT INTO SUBGROUPMASTER(NAME,ALIAS,PRIORITY,GROUP_ALIAS) VALUES (?,?,?,?)");
 			stmt.setString(1, nameField.getText());
 			stmt.setString(2,aliasField.getText());
 			stmt.setString(3, priorityField.getText());
@@ -404,6 +399,8 @@ public class SubGroupPanel extends JFrame{
 			} else {
 				JOptionPane.showMessageDialog(null, "Something Went Wrong");
 			}
+			db.ConClosed();
+			System.out.println("CONNECTION CLOSED FOR INSERT TABLE SUBGROUP");
 		} catch (SQLException exception) {
 			if(exception.getErrorCode()==1062)
 			{
@@ -421,7 +418,8 @@ public class SubGroupPanel extends JFrame{
 	void UpdateTable()
 	{
 		try {
-			PreparedStatement stmt=mainInintials.con.prepareStatement("UPDATE SUBGROUPMASTER SET NAME=?,PRIORITY=?,GROUP_ALIAS=?  WHERE ALIAS=?");
+			OpenDataBase db = new OpenDataBase();
+			PreparedStatement stmt=db.getDataBaseConnection().prepareStatement("UPDATE SUBGROUPMASTER SET NAME=?,PRIORITY=?,GROUP_ALIAS=?  WHERE ALIAS=?");
 			stmt.setString(1, nameField.getText());
 			stmt.setString(4,aliasField.getText());
 			stmt.setString(2, priorityField.getText());
@@ -436,6 +434,8 @@ public class SubGroupPanel extends JFrame{
 			} else {
 				JOptionPane.showMessageDialog(null, "Something Went Wrong");
 			}
+			db.ConClosed();
+			System.out.println("CONNECTION CLOSED FOR UPDATE SUBGROUP");
 		} catch (SQLException exception) {
 			if(exception.getErrorCode()==1062)
 			{

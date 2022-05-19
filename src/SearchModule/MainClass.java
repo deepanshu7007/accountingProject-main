@@ -8,10 +8,10 @@ public class MainClass {
 		MainClass cm = new MainClass();
 		Connection con;
 		try {
-			con = DriverManager.getConnection("jdbc:mysql://localhost:3306/accountingdatabase", "root", "Anshu12345$");
+			con = DriverManager.getConnection("jdbc:mysql://localhost:3306/accountingdatabase", "deepanshu", "Anshu123$");
 			Statement stmt = con.createStatement();
 			ResultSet rs = stmt.executeQuery("SELECT ALIAS,NAME FROM ACCOUNTMASTER");
-			SearchTableModel ctm = cm.BuildTableModel(rs);
+			SearchTableModel ctm = new SearchTableModel(rs);
 			SearchFrameTest sft = new SearchFrameTest(ctm);
 			sft.setVisible(true);
 		} catch (SQLException exception) {
@@ -36,6 +36,6 @@ public class MainClass {
 			}
 			DataList.add(vector);
 		}
-		return new SearchTableModel(ColumnNames, DataList);
+		return new SearchTableModel(rs);
 	}
 }

@@ -21,12 +21,7 @@ public class SearchTableModel extends AbstractTableModel {
 	public Vector<Object> getRow(int pos) {
 		return DataList.elementAt(pos);
 	}
-	public SearchTableModel()
-	{
-		
-	}
-	public SearchTableModel BuildTableModel(ResultSet rs) throws SQLException
-	{
+	public SearchTableModel(ResultSet rs) throws SQLException {
 		ResultSetMetaData metaData = rs.getMetaData();
 		Vector<String> ColumnNames = new Vector<String>();
 		int columnCount = metaData.getColumnCount();
@@ -41,14 +36,11 @@ public class SearchTableModel extends AbstractTableModel {
 			}
 			DataList.add(vector);
 		}
-		return new SearchTableModel(ColumnNames, DataList);
-	}
-	public SearchTableModel(Vector<String> v, Vector<Vector<Object>> DataList) {
 		AliasNameMap = new HashMap<Object, Object>();
-		columnNames = v;
-		this.DataList = DataList;
+		columnNames = ColumnNames;
 		setAliasNameMap(DataList);
 	}
+	
 
 	private void setAliasNameMap(Vector<Vector<Object>> DataList) {
 		for (Vector<Object> RowData : DataList)

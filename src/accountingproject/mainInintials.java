@@ -23,7 +23,7 @@ public class mainInintials
 	{
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
-			con = DriverManager.getConnection("jdbc:mysql://localhost:3306/accountingdatabase", "root", "Anshu12345$");
+			con = DriverManager.getConnection("jdbc:mysql://localhost:3306/accountingdatabase", "deepanshu", "Anshu123$");
 		} catch (ClassNotFoundException | SQLException exception) {
 			exception.printStackTrace();
 		}
@@ -38,7 +38,7 @@ public class mainInintials
 		try {
 			stmt = con.createStatement();
 			ResultSet rs = stmt.executeQuery(
-					"SELECT ALIAS FROM GROUPMASTER UNION SELECT ALIAS FROM ACCOUNTMASTER UNION SELECT ALIAS FROM SUBGROUPMASTER UNION SELECT ALIAS FROM DIVISIONMASTER UNION SELECT ALIAS FROM ITEMMASTER UNION SELECT ALIAS FROM UNITMASTER UNION SELECT ALIAS FROM CATAGORYMASTER");
+					"SELECT ALIAS FROM GROUPMASTER UNION SELECT ALIAS FROM ACCOUNTMASTER UNION SELECT ALIAS FROM SUBGROUPMASTER UNION SELECT ALIAS FROM ITEMMASTER");
 			while (rs.next()) {
 				listOfAlias.add(rs.getString(1));
 			}

@@ -1,12 +1,11 @@
 package Views;
 
 import javax.swing.JFrame;
-import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JRootPane;
-
-import accountingproject.mainInintials;
+import LedgerMaster.OpenDataBase;
+import accountingproject.MasterPresistables;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Font;
@@ -27,33 +26,24 @@ import java.sql.SQLException;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.ActionEvent;
 
-public class GroupPanel extends JFrame{
+public class GroupPanel extends JFrame implements MasterPresistables{
 	protected DTextField nameField;
 	protected DTextField aliasField;
 	protected DTextField priorityField;
 	protected JComboBox typeBox;
 	protected JButton saveButton;
 	protected SearchFrame  sp ;
+	
 	private JFrame frame;
-	protected mainInintials.MainTools mn;
 	public GroupPanel(String name) {
+		
 		setSize(860,735);
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		setLocation(dim.width/2-this.getSize().width/2, dim.height/2-this.getSize().height/2);
 		getRootPane().setWindowDecorationStyle(JRootPane.NONE);
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		mn=new mainInintials.MainTools();
-		try {
-			sp = new SearchFrame("ALIAS,NAME","GROUPMASTER");
-			
-		} catch (SQLException exception) {
-			// TODO Auto-generated catch-block stub.
-			exception.printStackTrace();
-		}
-		
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);		
 		setBackground(SystemColor.menu);
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 323, 269, 0 };
@@ -158,36 +148,9 @@ public class GroupPanel extends JFrame{
 		gbc_lblType.gridy = 10;
 		getContentPane().add(lblType, gbc_lblType);
 		saveButton = new JButton("SAVE");
-//		saveButton.addActionListener(new ActionListener() {
-//			public void actionPerformed(ActionEvent e) {
-//				if(nameField.getText().isEmpty() || aliasField.getText().isEmpty() || priorityField.getText().isEmpty())
-//				{
-//					JOptionPane.showMessageDialog(null,"Some of the major fields are empty");
-//					nameField.requestFocus();
-//				}
-//				else
-//					InsertTable();
-//			}
-//		});
 		saveButton.setFont(new Font("Tahoma", Font.BOLD, 18));
-//		saveButton.addKeyListener(new KeyAdapter() {
-//			@Override
-//			public void keyPressed(KeyEvent e) {
-//				if (e.getKeyChar() == KeyEvent.VK_ENTER) {
-//					if(nameField.getText().isEmpty() || aliasField.getText().isEmpty() || priorityField.getText().isEmpty())
-//					{
-//						JOptionPane.showMessageDialog(null,"Some of the major fields are empty");
-//						nameField.requestFocus();
-//					}
-//					else
-//InsertTable();
-//				}
-//			}
-//		});
-		
 				typeBox = new JComboBox();
 				typeBox.setName("HEAD_ALIAS");
-
 				typeBox.setFont(new Font("Tahoma", Font.BOLD, 21));
 				typeBox.setModel(new DefaultComboBoxModel(new String[] { "ASSETS", "LIABILITY", "INCOME", "EXPENDITURE" }));
 				GridBagConstraints gbc_typeBox = new GridBagConstraints();
@@ -221,21 +184,17 @@ public class GroupPanel extends JFrame{
 				if(name.equals("VIEW"))
 				{
 					setVisible(true);
-					try {
-						SearchFrame sf=new SearchFrame("ALIAS","GROUPMASTER");
-						sf.setVisible(true);
-						sf.addWindowListener(new WindowAdapter() {
-						public void windowClosed(WindowEvent e)
-						{
-							nameField.setText(sf.get("NAME"));
-							aliasField.setText(sf.get("ALIAS"));
-							priorityField.setText(sf.get("PRIORITY"));
-							typeBox.setSelectedItem(sf.get("HEAD_ALIAS"));
-						}
-						});	
-					} catch (SQLException exception) {
-						exception.printStackTrace();
+					SearchFrame sf=new SearchFrame("ALIAS,NAME","GROUPMASTER");
+					sf.setVisible(true);
+					sf.addWindowListener(new WindowAdapter() {
+					public void windowClosed(WindowEvent e)
+					{
+						nameField.setText(sf.get("NAME"));
+						aliasField.setText(sf.get("ALIAS"));
+						priorityField.setText(sf.get("PRIORITY"));
+						typeBox.setSelectedItem(sf.get("HEAD_ALIAS"));
 					}
+					});
 					nameField.setEditable(false);
 					aliasField.setEditable(false);
 					priorityField.setEditable(false);
@@ -256,8 +215,10 @@ public class GroupPanel extends JFrame{
 								JOptionPane.showMessageDialog(null, "Please enter some values to the field");
 								nameField.requestFocus();
 							} else {
-								aliasField.setText(mn.getAliasName(nameField.getText()));
-								aliasField.requestFocus();
+								OpenDataBase db = new OpenDataBase();
+								    	aliasField.setText(db.getAliasName(nameField.getText()));
+										db.ConClosed();
+								    	aliasField.requestFocus();
 							}
 						}
 					}
@@ -298,7 +259,7 @@ public class GroupPanel extends JFrame{
 				});
 					saveButton.addKeyListener(new KeyAdapter() {
 					@Override
-					public void keyPressed(KeyEvent e) {
+					public void keyReleased(KeyEvent e) {
 						if (e.getKeyChar() == KeyEvent.VK_ENTER) {
 							if(nameField.getText().isEmpty() || aliasField.getText().isEmpty() || priorityField.getText().isEmpty())
 							{
@@ -307,6 +268,8 @@ public class GroupPanel extends JFrame{
 							}
 							else
 			InsertTable();
+							repaint();
+							revalidate();
 						}
 					}
 				});
@@ -325,6 +288,9 @@ public class GroupPanel extends JFrame{
 					});
 				}if(name.equals("UPDATE"))
 				{
+					
+					sp = new SearchFrame("ALIAS,NAME","GROUPMASTER");
+					sp.setVisible(true);
 					sp.setVisible(true);
 					nameField.addKeyListener(new KeyAdapter() {
 						@Override
@@ -410,8 +376,10 @@ public class GroupPanel extends JFrame{
 	}
 	void InsertTable()
 	{
+		OpenDataBase db = new OpenDataBase();
+		PreparedStatement stmt;
 		try {
-			PreparedStatement stmt=mainInintials.con.prepareStatement("INSERT INTO GROUPMASTER(NAME,ALIAS,PRIORITY,HEAD_ALIAS) VALUES (?,?,?,?)");
+			stmt=db.getDataBaseConnection().prepareStatement("INSERT INTO GROUPMASTER(NAME,ALIAS,PRIORITY,HEAD_ALIAS) VALUES (?,?,?,?)");
 			stmt.setString(1, nameField.getText());
 			stmt.setString(2,aliasField.getText());
 			stmt.setString(3, priorityField.getText());
@@ -438,11 +406,19 @@ public class GroupPanel extends JFrame{
 			}
 			exception.printStackTrace();
 		}
+		finally {
+			db.ConClosed();
+			System.out.println("DATABASE CONNECTION CLOSED FOR INSERT TABLE OF GROUPMASTER");
+			repaint();
+			revalidate();
+		}
 	}
 	void UpdateTable()
 	{
+		
+		OpenDataBase db = new OpenDataBase();
 		try {
-			PreparedStatement stmt=mainInintials.con.prepareStatement("UPDATE GROUPMASTER SET NAME=?,PRIORITY=?,HEAD_ALIAS=? WHERE ALIAS=?");
+			PreparedStatement stmt=db.getDataBaseConnection().prepareStatement("UPDATE GROUPMASTER SET NAME=?,PRIORITY=?,HEAD_ALIAS=? WHERE ALIAS=?");
 			stmt.setString(1, nameField.getText());
 			stmt.setString(4,aliasField.getText());
 			stmt.setString(2, priorityField.getText());
@@ -469,5 +445,28 @@ public class GroupPanel extends JFrame{
 			}
 			exception.printStackTrace();
 		}
+		finally {
+			db.ConClosed();
+			System.out.println("DATABASE CONNECTION CLOSED FOR UPDATE TABLE FOR GROUPMASTER");
+		}
+	}
+	@Override
+	public void insertRecord() {
+		
+	}
+	@Override
+	public void deleteRecord() {
+		
+		
+	}
+	@Override
+	public void editRecord() {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void viewRecord() {
+		// TODO Auto-generated method stub
+		
 	}
 }

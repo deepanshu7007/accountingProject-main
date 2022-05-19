@@ -19,12 +19,11 @@ import java.awt.Image;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 public class BasePanels extends JInternalFrame {
-	private JTable table;
+	
 BasePanels(String title)
 {
 	setLocation(470, 100);
 	getContentPane().setBackground(Color.DARK_GRAY);
-	mainInintials.MainTools mn = new mainInintials.MainTools();
 	setIconifiable(true);
 	setClosable(true);
 	setTitle("Base Panel");
@@ -56,8 +55,6 @@ BasePanels(String title)
 	InsertButton.setIcon(new ImageIcon(img));
 	InsertButton.addActionListener(new ActionListener() {
 		public void actionPerformed(ActionEvent e) {
-			System.out.println(getParent());
-			System.out.println(title.toUpperCase());
 			switch(title.toUpperCase())
 			{
 			case "GROUPMASTER":
@@ -69,14 +66,14 @@ BasePanels(String title)
 			case "SUBGROUPMASTER":
 			{
 				SubGroupPanel sp = new SubGroupPanel("INSERT");
-				sp.setUndecorated(true);
+				
 				sp.setVisible(true);
 				break;
 			}
 			case "ACCOUNTMASTER":
 			{
 				AccountPanel ap = new AccountPanel("INSERT");
-				ap.setUndecorated(true);
+				
 				ap.setVisible(true);
 				break;
 			}
@@ -113,30 +110,11 @@ BasePanels(String title)
 		}
 	});
 	
-	JButton RefreshButton = new JButton("Refresh");
-	RefreshButton.addActionListener(new ActionListener() {
-		public void actionPerformed(ActionEvent e) {
-			DefaultTableModel dtm = (DefaultTableModel)table.getModel();
-			try {
-				dtm = mn.buildTableModel(mn.selectDataTable("ALIAS,NAME",title));
-			} catch (SQLException exception) {
-				// TODO Auto-generated catch-block stub.
-				exception.printStackTrace();
-			}
-			table.setModel(dtm);
-			table.repaint();
-			table.revalidate();
-		}
-	});
-	img = new ImageIcon(this.getClass().getResource("/refresh.png")).getImage();
-	RefreshButton.setIcon(new ImageIcon(img));
-	RefreshButton.setFont(new Font("Tahoma", Font.PLAIN, 22));
 	GridBagConstraints gbc_RefreshButton = new GridBagConstraints();
 	gbc_RefreshButton.fill = GridBagConstraints.BOTH;
 	gbc_RefreshButton.insets = new Insets(0, 0, 5, 0);
 	gbc_RefreshButton.gridx = 4;
 	gbc_RefreshButton.gridy = 0;
-	getContentPane().add(RefreshButton, gbc_RefreshButton);
 	InsertButton.setFont(new Font("Tahoma", Font.PLAIN, 22));
 	GridBagConstraints gbc_InsertButton = new GridBagConstraints();
 	gbc_InsertButton.fill = GridBagConstraints.HORIZONTAL;
@@ -216,7 +194,7 @@ BasePanels(String title)
 			{
 			case "GROUPMASTER":
 			{
-				GroupPanel gp = new GroupPanel("VIEW");
+				GroupPanel gm = new GroupPanel("VIEW");
 				break;
 			}
 			case "SUBGROUPMASTER":
@@ -348,24 +326,6 @@ BasePanels(String title)
 	gbc_BackButton.gridx = 4;
 	gbc_BackButton.gridy = 1;
 	getContentPane().add(BackButton, gbc_BackButton);
-	
-	JScrollPane scrollPane = new JScrollPane();
-	GridBagConstraints gbc_scrollPane = new GridBagConstraints();
-	gbc_scrollPane.gridheight = 2;
-	gbc_scrollPane.gridwidth = 5;
-	gbc_scrollPane.fill = GridBagConstraints.BOTH;
-	gbc_scrollPane.gridx = 0;
-	gbc_scrollPane.gridy = 2;
-	getContentPane().add(scrollPane, gbc_scrollPane);
-	
-	try {
-		table = new JTable(mn.buildTableModel(mn.selectDataTable("ALIAS,NAME", title)));
-	} catch (SQLException exception) {
-		exception.printStackTrace();
-	}
-	table.setRowHeight(25);
-	table.setFont(new Font("Tahoma", Font.PLAIN, 20));
-	scrollPane.setViewportView(table);
 	setVisible(true);
 }
 }

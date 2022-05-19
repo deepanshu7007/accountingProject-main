@@ -2,7 +2,11 @@ package company;
 import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.border.EmptyBorder;
+
+import com.toedter.calendar.JDateChooser;
+
 import java.awt.GridBagLayout;
 import javax.swing.JLabel;
 import java.awt.GridBagConstraints;
@@ -36,9 +40,9 @@ public class CompanyCreation extends JFrame {
 	private JTextField FaxField;
 	private JTextField EmailField;
 	private JTextField WebField;
-	private JTextField StartField;
-	private JTextField EndYear;
-	private JTextField textField_14;
+	private JDateChooser StartField;
+	private JDateChooser EndYear;
+	private JPasswordField PasswordField;
 	private JTextField textField_15;
 	private JTextField textField_16;
 	private JTextField textField_17;
@@ -113,9 +117,8 @@ public class CompanyCreation extends JFrame {
 		gbc_lblNewLabel_2.gridy = 1;
 		contentPane.add(lblNewLabel_2, gbc_lblNewLabel_2);
 		
-		StartField = new JTextField();
+		StartField = new JDateChooser();
 		StartField.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		StartField.setColumns(10);
 		GridBagConstraints gbc_StartField = new GridBagConstraints();
 		gbc_StartField.insets = new Insets(0, 0, 5, 0);
 		gbc_StartField.fill = GridBagConstraints.HORIZONTAL;
@@ -142,7 +145,7 @@ public class CompanyCreation extends JFrame {
 		gbc_NameField.gridy = 2;
 		contentPane.add(NameField, gbc_NameField);
 		
-		JLabel lblNewLabel_3 = new JLabel("book beginning year");
+		JLabel lblNewLabel_3 = new JLabel("Financial year ends");
 		lblNewLabel_3.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		GridBagConstraints gbc_lblNewLabel_3 = new GridBagConstraints();
 		gbc_lblNewLabel_3.anchor = GridBagConstraints.EAST;
@@ -151,9 +154,8 @@ public class CompanyCreation extends JFrame {
 		gbc_lblNewLabel_3.gridy = 2;
 		contentPane.add(lblNewLabel_3, gbc_lblNewLabel_3);
 		
-		EndYear = new JTextField();
+		EndYear = new JDateChooser();
 		EndYear.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		EndYear.setColumns(10);
 		GridBagConstraints gbc_EndYear = new GridBagConstraints();
 		gbc_EndYear.insets = new Insets(0, 0, 5, 0);
 		gbc_EndYear.fill = GridBagConstraints.HORIZONTAL;
@@ -189,7 +191,7 @@ public class CompanyCreation extends JFrame {
 		gbc_MailingName.gridy = 4;
 		contentPane.add(MailingName, gbc_MailingName);
 		
-		JLabel lblNewLabel_3_1 = new JLabel("New label");
+		JLabel lblNewLabel_3_1 = new JLabel("Password");
 		lblNewLabel_3_1.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		GridBagConstraints gbc_lblNewLabel_3_1 = new GridBagConstraints();
 		gbc_lblNewLabel_3_1.anchor = GridBagConstraints.EAST;
@@ -198,15 +200,15 @@ public class CompanyCreation extends JFrame {
 		gbc_lblNewLabel_3_1.gridy = 4;
 		contentPane.add(lblNewLabel_3_1, gbc_lblNewLabel_3_1);
 		
-		textField_14 = new JTextField();
-		textField_14.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		textField_14.setColumns(10);
-		GridBagConstraints gbc_textField_14 = new GridBagConstraints();
-		gbc_textField_14.insets = new Insets(0, 0, 5, 0);
-		gbc_textField_14.fill = GridBagConstraints.HORIZONTAL;
-		gbc_textField_14.gridx = 3;
-		gbc_textField_14.gridy = 4;
-		contentPane.add(textField_14, gbc_textField_14);
+		PasswordField = new JPasswordField();
+		PasswordField.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		PasswordField.setColumns(10);
+		GridBagConstraints gbc_PasswordField = new GridBagConstraints();
+		gbc_PasswordField.insets = new Insets(0, 0, 5, 0);
+		gbc_PasswordField.fill = GridBagConstraints.HORIZONTAL;
+		gbc_PasswordField.gridx = 3;
+		gbc_PasswordField.gridy = 4;
+		contentPane.add(PasswordField, gbc_PasswordField);
 		
 		JLabel lblNewLabel_1_1_1_1 = new JLabel("address");
 		lblNewLabel_1_1_1_1.setFont(new Font("Tahoma", Font.PLAIN, 20));
@@ -228,6 +230,7 @@ public class CompanyCreation extends JFrame {
 		contentPane.add(AddressField, gbc_AddressField);
 		
 		JLabel lblNewLabel_3_1_1 = new JLabel("New label");
+		lblNewLabel_3_1_1.setEnabled(false);
 		lblNewLabel_3_1_1.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		GridBagConstraints gbc_lblNewLabel_3_1_1 = new GridBagConstraints();
 		gbc_lblNewLabel_3_1_1.anchor = GridBagConstraints.EAST;
@@ -237,6 +240,7 @@ public class CompanyCreation extends JFrame {
 		contentPane.add(lblNewLabel_3_1_1, gbc_lblNewLabel_3_1_1);
 		
 		textField_15 = new JTextField();
+		textField_15.setEnabled(false);
 		textField_15.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		textField_15.setColumns(10);
 		GridBagConstraints gbc_textField_15 = new GridBagConstraints();
@@ -266,6 +270,7 @@ public class CompanyCreation extends JFrame {
 		contentPane.add(CountryField, gbc_CountryField);
 		
 		JLabel lblNewLabel_3_1_1_1 = new JLabel("New label");
+		lblNewLabel_3_1_1_1.setEnabled(false);
 		lblNewLabel_3_1_1_1.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		GridBagConstraints gbc_lblNewLabel_3_1_1_1 = new GridBagConstraints();
 		gbc_lblNewLabel_3_1_1_1.anchor = GridBagConstraints.EAST;
@@ -275,6 +280,7 @@ public class CompanyCreation extends JFrame {
 		contentPane.add(lblNewLabel_3_1_1_1, gbc_lblNewLabel_3_1_1_1);
 		
 		textField_16 = new JTextField();
+		textField_16.setEnabled(false);
 		textField_16.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		textField_16.setColumns(10);
 		GridBagConstraints gbc_textField_16 = new GridBagConstraints();
@@ -304,6 +310,7 @@ public class CompanyCreation extends JFrame {
 		contentPane.add(StateField, gbc_StateField);
 		
 		JLabel lblNewLabel_3_1_1_1_1 = new JLabel("New label");
+		lblNewLabel_3_1_1_1_1.setEnabled(false);
 		lblNewLabel_3_1_1_1_1.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		GridBagConstraints gbc_lblNewLabel_3_1_1_1_1 = new GridBagConstraints();
 		gbc_lblNewLabel_3_1_1_1_1.anchor = GridBagConstraints.EAST;
@@ -313,6 +320,7 @@ public class CompanyCreation extends JFrame {
 		contentPane.add(lblNewLabel_3_1_1_1_1, gbc_lblNewLabel_3_1_1_1_1);
 		
 		textField_17 = new JTextField();
+		textField_17.setEnabled(false);
 		textField_17.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		textField_17.setColumns(10);
 		GridBagConstraints gbc_textField_17 = new GridBagConstraints();

@@ -11,8 +11,7 @@ import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
 
 import Views.DTextField;
-import sun.reflect.misc.ReflectUtil;
-import sun.swing.SwingUtilities2;
+
 
 /**
  * TODO Put here a description of what this class does.
@@ -55,11 +54,11 @@ public class GenericEditorForFields extends DefaultCellEditor {
 			if (table.getSelectedColumn() == 2)
 				col = 1;
 			if (table.getValueAt(table.getSelectedRow(), col).equals(0.0)) {
-				SwingUtilities2.checkAccess(constructor.getModifiers());
+//				SwingUtilities2.checkAccess(constructor.getModifiers());
 				value = constructor.newInstance(new Object[] { s });
 			} else {
 				JOptionPane.showMessageDialog(null, "Something went wrong");
-				SwingUtilities2.checkAccess(constructor.getModifiers());
+//				SwingUtilities2.checkAccess(constructor.getModifiers());
 				value = 0.0;
 				return super.stopCellEditing();
 			}
@@ -85,8 +84,8 @@ public class GenericEditorForFields extends DefaultCellEditor {
 			if (type == Object.class) {
 				type = String.class;
 			}
-			ReflectUtil.checkPackageAccess(type);
-			SwingUtilities2.checkAccess(type.getModifiers());
+//			ReflectUtil.checkPackageAccess(type);
+//			SwingUtilities2.checkAccess(type.getModifiers());
 			constructor = type.getConstructor(argTypes);
 		} catch (Exception e) {
 			return null;

@@ -44,6 +44,7 @@ private ArrayList<String> listOfAlias = new ArrayList<String>();
 		CallingName=NameOfTable;
 		try {
 			Statement stmt = con.createStatement();
+                        
 			ResultSet rs = stmt.executeQuery("SELECT NAME FROM "+NameOfTable+" WHERE ALIAS='"+AliasName+"'");
 			rs.next();
 			AliasName=rs.getString("NAME");
@@ -92,7 +93,6 @@ String column[]={"ALIAS","NAME"};
 	        columnNames.add(metaData.getColumnName(column));
 	    }
 	data = new Vector<Vector<Object>>();
-	    rs.first();
 	    do {
 	        Vector<Object> vector = new Vector<Object>();
 	        for (int columnIndex = 1; columnIndex <= columnCount; columnIndex++) {

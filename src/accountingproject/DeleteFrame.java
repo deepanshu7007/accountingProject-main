@@ -8,36 +8,37 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import javax.swing.JOptionPane;
+
+import LedgerMaster.OpenDataBase;
+import TransactionsMaster.DataBaseModel;
 import Views.SearchFrame;
 
 public class DeleteFrame {
 	public DeleteFrame(String NAME_OF_TABLE) {
 		SearchFrame sp;
-		try {
-			sp = new SearchFrame("ALIAS,NAME",NAME_OF_TABLE);
-			sp.setVisible(true);
-			Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/accountingdatabase", "root", "Anshu12345$");
-			sp.addWindowListener(new WindowAdapter() {
-				public void windowClosed(WindowEvent e) {
+		OpenDataBase db = new OpenDataBase();
+		sp = new SearchFrame("ALIAS,NAME",NAME_OF_TABLE);
+		sp.setVisible(true);
+		sp.addWindowListener(new WindowAdapter() {
+			public void windowClosed(WindowEvent e) {
 
-					String str = "DELETE FROM " + NAME_OF_TABLE + " WHERE ALIAS='" + sp.get("ALIAS") + "'";
-					if ((JOptionPane.showConfirmDialog(null, "ARE YOU SURE TO DELETE THIS RECORD") == 0)) {
-						try {
-							Statement stmt = con.createStatement();
-							stmt.executeUpdate(str);
-							JOptionPane.showMessageDialog(null, "RECORD DELETED SUCCESSFULLY");
-							con.close();
-							System.out.println("DATABASE CONNECTION CLOSED FOR DELETEFRAME OF:"+NAME_OF_TABLE);
-						} catch (SQLException exception) {
-							// TODO Auto-generated catch-block stub.
-							exception.printStackTrace();
-						}
+				String str = "DELETE FROM " + NAME_OF_TABLE + " WHERE ALIAS='" + sp.get("ALIAS") + "'";
+				if ((JOptionPane.showConfirmDialog(null, "ARE YOU SURE TO DELETE THIS RECORD") == 0)) {
+					try {
+						Statement stmt = db.getDataBaseConnection().createStatement();
+						stmt.executeUpdate(str);
+						JOptionPane.showMessageDialog(null, "RECORD DELETED SUCCESSFULLY");
+					} catch (SQLException exception) {
+						// TODO Auto-generated catch-block stub.
+						exception.printStackTrace();
+					}
+					finally {
+						db.ConClosed();
+						System.out.println("DATABASE CONNECTION CLOSED FOR DELETE FRAME");
 					}
 				}
-			});
-		} catch (SQLException exception1) {
-			exception1.printStackTrace();
-		}
+			}
+		});
 
 	}
 }

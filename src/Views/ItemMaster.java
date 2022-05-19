@@ -457,86 +457,66 @@ public class ItemMaster extends JFrame implements MasterPresistables {
 		GstField.addKeyListener(new KeyAdapter() {
 		public void keyPressed(KeyEvent evt)
 		{
-			try {
-				SearchFrame sf = new SearchFrame("ALIAS,NAME","GSTMASTER");
-				sf.setVisible(true);
-				sf.addWindowListener(new WindowAdapter() {
-					public void windowClosed(WindowEvent evt)
-					{
-						GstField.setText(sf.get("NAME"));
-					}
-				});
-			} catch (SQLException exception) {
-				exception.printStackTrace();
-			}
+			SearchFrame sf = new SearchFrame("ALIAS,NAME","GSTMASTER");
+			sf.setVisible(true);
+			sf.addWindowListener(new WindowAdapter() {
+				public void windowClosed(WindowEvent evt)
+				{
+					GstField.setText(sf.get("NAME"));
+				}
+			});
 		}
 		});
 		DivisionField.addKeyListener(new KeyAdapter() {
 			public void keyPressed(KeyEvent evt)
 			{
-				try {
-					SearchFrame sf = new SearchFrame("ALIAS,NAME","DIVISIONMASTER");
-					sf.setVisible(true);
-					sf.addWindowListener(new WindowAdapter() {
-						public void windowClosed(WindowEvent evt)
-						{
-							DivisionField.setText(sf.get("NAME"));
-						}
-					});
-				} catch (SQLException exception) {
-					exception.printStackTrace();
-				}
+				SearchFrame sf = new SearchFrame("ALIAS,NAME","DIVISIONMASTER");
+				sf.setVisible(true);
+				sf.addWindowListener(new WindowAdapter() {
+					public void windowClosed(WindowEvent evt)
+					{
+						DivisionField.setText(sf.get("NAME"));
+					}
+				});
 			}
 			});
 		CatagoryField.addKeyListener(new KeyAdapter() {
 			public void keyPressed(KeyEvent evt)
 			{
-				try {
-					SearchFrame sf = new SearchFrame("ALIAS,NAME","CATAGORYMASTER");
-					sf.setVisible(true);
-					sf.addWindowListener(new WindowAdapter() {
-						public void windowClosed(WindowEvent evt)
-						{
-							CatagoryField.setText(sf.get("NAME"));
-						}
-					});
-				} catch (SQLException exception) {
-					exception.printStackTrace();
-				}
+				SearchFrame sf = new SearchFrame("ALIAS,NAME","CATAGORYMASTER");
+				sf.setVisible(true);
+				sf.addWindowListener(new WindowAdapter() {
+					public void windowClosed(WindowEvent evt)
+					{
+						CatagoryField.setText(sf.get("NAME"));
+					}
+				});
 			}
 			});
 		Unit1Field.addKeyListener(new KeyAdapter() {
 			public void keyPressed(KeyEvent evt)
 			{
-				try {
-					SearchFrame sf = new SearchFrame("ALIAS,NAME","UNITMASTER");
-					sf.setVisible(true);
-					sf.addWindowListener(new WindowAdapter() {
-						public void windowClosed(WindowEvent evt)
-						{
-							Unit1Field.setText(sf.get("NAME"));
-						}
-					});
-				} catch (SQLException exception) {
-					exception.printStackTrace();
-				}
+				SearchFrame sf = new SearchFrame("ALIAS,NAME","UNITMASTER");
+				sf.setVisible(true);
+				sf.addWindowListener(new WindowAdapter() {
+					public void windowClosed(WindowEvent evt)
+					{
+						Unit1Field.setText(sf.get("NAME"));
+					}
+				});
 			}
 			});
 		Unit2Field.addKeyListener(new KeyAdapter() {
 			public void keyPressed(KeyEvent evt)
 			{
-				try {
-					SearchFrame sf = new SearchFrame("ALIAS,NAME","UNITMASTER");
-					sf.setVisible(true);
-					sf.addWindowListener(new WindowAdapter() {
-						public void windowClosed(WindowEvent evt)
-						{
-							Unit2Field.setText(sf.get("NAME"));
-						}
-					});
-				} catch (SQLException exception) {
-					exception.printStackTrace();
-				}
+				SearchFrame sf = new SearchFrame("ALIAS,NAME","UNITMASTER");
+				sf.setVisible(true);
+				sf.addWindowListener(new WindowAdapter() {
+					public void windowClosed(WindowEvent evt)
+					{
+						Unit2Field.setText(sf.get("NAME"));
+					}
+				});
 			}
 			});
 		try {
@@ -865,37 +845,33 @@ public class ItemMaster extends JFrame implements MasterPresistables {
 	public void viewRecord() {
 		SaveButton.setEnabled(false);
 		SearchFrame sf;
-		try {
-			sf = new SearchFrame("ALIAS,NAME", "ITEMMASTER");
-			sf.setVisible(true);
-			sf.addWindowListener(new WindowAdapter() {
-				@Override
-				public void windowClosed(WindowEvent evt) {
-					NameField.setText(sf.get("NAME"));
-					GstField.setText(sf.get("GST"));
-					TaxField.setText(sf.get("TAXPERC"));
-					HsnField.setText(sf.get("HSNCODE"));
-					DescArea.setText(sf.get("DESCRIPTION"));
-					DivisionField.setText(sf.get("DIVISION"));
-					CatagoryField.setText(sf.get("CATAGORY"));
-					PurchaseField.setText(sf.get("P_RATE"));
-					SalesField.setText(sf.get("S_RATE"));
-					MrpField.setText(sf.get("MRP"));
-					MarginField.setText(sf.get("MARGIN"));
-					CodeBelField.setText(sf.get("CODEBELONG"));
-					SalesFactField.setText(sf.get("SALESFACTOR"));
-					Unit1Field.setText(sf.get("UNIT_1"));
-					Unit2Field.setText(sf.get("UNIT_2"));
-					ConvFactField.setText(sf.get("CONVERSIONFACT"));
-					AliasField.setText(sf.get("ALIAS"));
-					TypeField.setSelectedItem(sf.get("TYPE"));
-					InventoryField.setSelectedItem(sf.get("INVENTORY"));
-					setVisible(true);
-				}
-			});
-		} catch (SQLException exception) {
-			exception.printStackTrace();
-		}
+		sf = new SearchFrame("ALIAS,NAME", "ITEMMASTER");
+		sf.setVisible(true);
+		sf.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosed(WindowEvent evt) {
+				NameField.setText(sf.get("NAME"));
+				GstField.setText(sf.get("GST"));
+				TaxField.setText(sf.get("TAXPERC"));
+				HsnField.setText(sf.get("HSNCODE"));
+				DescArea.setText(sf.get("DESCRIPTION"));
+				DivisionField.setText(sf.get("DIVISION"));
+				CatagoryField.setText(sf.get("CATAGORY"));
+				PurchaseField.setText(sf.get("P_RATE"));
+				SalesField.setText(sf.get("S_RATE"));
+				MrpField.setText(sf.get("MRP"));
+				MarginField.setText(sf.get("MARGIN"));
+				CodeBelField.setText(sf.get("CODEBELONG"));
+				SalesFactField.setText(sf.get("SALESFACTOR"));
+				Unit1Field.setText(sf.get("UNIT_1"));
+				Unit2Field.setText(sf.get("UNIT_2"));
+				ConvFactField.setText(sf.get("CONVERSIONFACT"));
+				AliasField.setText(sf.get("ALIAS"));
+				TypeField.setSelectedItem(sf.get("TYPE"));
+				InventoryField.setSelectedItem(sf.get("INVENTORY"));
+				setVisible(true);
+			}
+		});
 	}
 
 }
