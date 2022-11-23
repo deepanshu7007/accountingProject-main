@@ -1,5 +1,6 @@
 package LedgerMaster;
 
+import java.awt.Container;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -33,7 +34,7 @@ public class LedgerModel {
 		OpenDataBase db = new OpenDataBase();
 		con = db.getDataBaseConnection();
 		PreparedStatement pstmt = con.prepareStatement(
-				"SELECT TDATE,TDOC,TTYPE,TNAR1,TAMT,TDBCR FROM TRANSACTIONMASTER WHERE TCODE=? AND TDATE BETWEEN ? AND ? ORDER BY TDATE");
+				"SELECT TDATE,TDOC,TTYPE,TNAR1,TAMT,TDBCR FROM TRANSACTIONMASTER WHERE TCODE=? AND TDATE BETWEEN ? AND ? ORDER BY TDATE ");
 		pstmt.setString(1, AliasName);
 		pstmt.setDate(2, StartDate);
 		pstmt.setDate(3, EndDate);
@@ -43,7 +44,7 @@ public class LedgerModel {
 		return ltm;
 	}
 
-	public void getVoucherDetails(int TransId, String Narration, Date date, String type, double amount) throws SQLException {
+	public void getVoucherDetails(int TransId, String Narration, Date date, String type, double amount,Container pane,LedgerController lc) throws SQLException {
 		try {
 			OpenDataBase db = new OpenDataBase();
 			con = db.getDataBaseConnection();
@@ -52,6 +53,7 @@ public class LedgerModel {
 			pstmt.setInt(1, TransId);
 			ResultSet rs = pstmt.executeQuery();
 			DataBaseModel ctm = new DataBaseModel();
+			
 			while (rs.next()) {
 				DataEntry de = new DataEntry();
 				de.setAccountName(rs.getString("NAME"));
@@ -60,7 +62,7 @@ public class LedgerModel {
 				ctm.addRow(de);
 			}
 			VoucherController vc = new VoucherController();
-			vc.update(ctm, Narration, date, type, amount, TransId);
+			vc.update(ctm, Narration, date, type, amount, TransId,pane,lc);
 		} catch (SQLException exception) {
 			exception.printStackTrace();
 		}finally

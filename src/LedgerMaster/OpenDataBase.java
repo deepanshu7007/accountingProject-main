@@ -65,6 +65,7 @@ public void ConClosed()
 {
 	try {
 		con.close();
+		System.out.println("Connection closed");
 	} catch (SQLException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();

@@ -6,6 +6,7 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
 
 import accountingproject.DataModelTools;
 import accountingproject.DeleteFrame;
@@ -193,7 +194,7 @@ public class DivisionMaster extends JFrame implements MasterPresistables{
 	}
 
 	@Override
-	public void insertRecord() {
+	public void insertRecord(DefaultTableModel dtm) {
 		Connection con;
 		try {
 			con = DriverManager.getConnection("jdbc:mysql://localhost:3306/accountingdatabase", "root", "Anshu12345$");
@@ -285,7 +286,7 @@ public class DivisionMaster extends JFrame implements MasterPresistables{
 
 	@Override
 	public void deleteRecord() {
-		new DeleteFrame("DivisionMaster");
+		new DeleteFrame("DivisionMaster",);
 	}
 
 	@Override

@@ -25,13 +25,13 @@ public class GenericEditorForFields extends DefaultCellEditor {
 	java.lang.reflect.Constructor constructor;
 	Object value;
 	JTable table;
-
+	
 	public GenericEditorForFields(JTable table) {
 		super(new DTextField());
 		this.table = table;
 		getComponent().setName("Table.editor");
 	}
-
+	
 	public boolean stopCellEditing() {
 		String s = (String) super.getCellEditorValue();
 		// Here we are dealing with the case where a user
@@ -68,13 +68,10 @@ public class GenericEditorForFields extends DefaultCellEditor {
 		}
 		return super.stopCellEditing();
 	}
-
+@Override
 	public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-		this.value = null;
-		((JComponent) getComponent()).setBorder(new LineBorder(Color.black));
-
-		((JTextField) getComponent()).setHorizontalAlignment(JTextField.RIGHT);
-
+		value="";
+		
 		try {
 			Class<?> type = table.getColumnClass(column);
 			// Since our obligation is to produce a value which is
@@ -86,13 +83,15 @@ public class GenericEditorForFields extends DefaultCellEditor {
 			}
 //			ReflectUtil.checkPackageAccess(type);
 //			SwingUtilities2.checkAccess(type.getModifiers());
+			System.out.println("Executed");
 			constructor = type.getConstructor(argTypes);
 		} catch (Exception e) {
+			System.out.println(e);
 			return null;
 		}
 		return super.getTableCellEditorComponent(table, value, isSelected, row, column);
 	}
-
+@Override
 	public Object getCellEditorValue() {
 		return value;
 	}

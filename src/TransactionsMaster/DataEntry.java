@@ -234,8 +234,8 @@ public class DataEntry {
 
 	public DataEntry(String AccountName, double debit, double credit) {
 		this.AccountName = AccountName;
-		this.DebitValue = debit;
-		this.CreditValue = credit;
+		this.DebitValue = (debit);
+		this.CreditValue = (credit);
 	}
 
 	/**

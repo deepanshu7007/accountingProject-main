@@ -4,25 +4,28 @@ package TransactionsMaster;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.print.PrinterException;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.Date;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.event.*;
-import javax.swing.text.Caret;
-import javax.swing.text.JTextComponent;
+//import javax.swing.table.DefaultTableModel;
+//import javax.swing.text.Caret;
+//import javax.swing.text.JTextComponent;
 
 import org.jdesktop.swingx.JXDatePicker;
 import SearchModule.SearchFrameTest;
 import SearchModule.SearchTableModel;
 
-public class VoucherTransaction extends JFrame {
+public class VoucherTransaction extends JInternalFrame {
 	public void setTableModel(DataBaseModel dtm) {
+//		DefaultTableModel dtn;
 		this.dtm = dtm;
 	}
-	private JButton btnNewButton_1_1_1;
+	private JButton SaveButton;
 	public JButton getButton() {
-		return this.btnNewButton_1_1_1;
+		return this.SaveButton;
 	}
 	private JPanel contentPane;
 	private JComboBox<String> comboBox;
@@ -80,6 +83,12 @@ public class VoucherTransaction extends JFrame {
 	}
 	private int row;
 	private JTable table;
+	public JTable getTable() {
+		return table;
+	}
+	public void setTable(JTable table) {
+		this.table = table;
+	}
 	private SearchTableModel SearchModel;
 	private JComboBox<String> comboBox_1;
 	private DataBaseModel dtm;
@@ -135,10 +144,20 @@ public class VoucherTransaction extends JFrame {
 		LeftPanel.add(lblNewLabel_1_1, gbc_lblNewLabel_1_1);
 
 		textField_1 = new JXDatePicker();
+		textField_1.setBackground(new Color(255, 102, 153));
+		textField_1.setForeground(Color.darkGray);
 		Date dNow = new Date();
 		textField_1.setDate(dNow);
 		textField_1.setFont(new Font("Calibre", Font.PLAIN, 20));
-		textField_1.setFormats("d/MM/yyyy");
+		textField_1.setFormats("dd.MM.yyyy");
+		textField_1.addActionListener(new AbstractAction() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				table.changeSelection(0, 0, true, false);
+				table.requestFocus();
+			}
+		});
 		GridBagConstraints gbc_textField_1 = new GridBagConstraints();
 		gbc_textField_1.insets = new Insets(0, 0, 5, 0);
 		gbc_textField_1.gridwidth = 2;
@@ -251,7 +270,8 @@ public class VoucherTransaction extends JFrame {
 		NarrationField.setBackground(Color.DARK_GRAY);
 		NarrationField.setFont(new Font("Tahoma", Font.PLAIN, 25));
 		NarrationField.setColumns(10);
-
+//		
+//		NarrationField.setCursor(new Cursor().)
 		GridBagConstraints gbc_NarrationField = new GridBagConstraints();
 		gbc_NarrationField.gridwidth = 4;
 		gbc_NarrationField.anchor = GridBagConstraints.NORTH;
@@ -300,16 +320,16 @@ public class VoucherTransaction extends JFrame {
 		gbc_btnNewButton_1.gridy = 2;
 		panel.add(btnNewButton_1, gbc_btnNewButton_1);
 
-		 btnNewButton_1_1_1 = new JButton("SAVE");
+		 SaveButton = new JButton("SAVE");
 		img = new ImageIcon(this.getClass().getResource("/save.png")).getImage();
-		btnNewButton_1_1_1.setIcon(new ImageIcon(img));
-		btnNewButton_1_1_1.setFont(new Font("Tahoma", Font.PLAIN, 30));
-		GridBagConstraints gbc_btnNewButton_1_1_1 = new GridBagConstraints();
-		gbc_btnNewButton_1_1_1.fill = GridBagConstraints.VERTICAL;
-		gbc_btnNewButton_1_1_1.anchor = GridBagConstraints.EAST;
-		gbc_btnNewButton_1_1_1.gridx = 3;
-		gbc_btnNewButton_1_1_1.gridy = 2;
-		panel.add(btnNewButton_1_1_1, gbc_btnNewButton_1_1_1);
+		SaveButton.setIcon(new ImageIcon(img));
+		SaveButton.setFont(new Font("Tahoma", Font.PLAIN, 30));
+		GridBagConstraints gbc_SaveButton = new GridBagConstraints();
+		gbc_SaveButton.fill = GridBagConstraints.VERTICAL;
+		gbc_SaveButton.anchor = GridBagConstraints.EAST;
+		gbc_SaveButton.gridx = 3;
+		gbc_SaveButton.gridy = 2;
+		panel.add(SaveButton, gbc_SaveButton);
 		JLabel lblNewLabel_3 = new JLabel("VOUCHER");
 		lblNewLabel_3.setFont(new Font("Tahoma", Font.PLAIN, 30));
 		contentPane.add(lblNewLabel_3, BorderLayout.NORTH);
@@ -333,7 +353,21 @@ public class VoucherTransaction extends JFrame {
 		KeyStroke tab = KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0);
 		KeyStroke enter = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
 
-		table.getInputMap(JTable.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(tab, "Tarverse");
+		NarrationField.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				SaveButton.requestFocus();
+			}
+		});
+		table.getInputMap(JTable.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(tab, "Focus");
+		table.getActionMap().put("Focus", new AbstractAction() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				NarrationField.requestFocus();
+			}
+		});
 		table.getInputMap(JTable.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(enter, "Tarverse");
 		table.getActionMap().put("Tarverse", new AbstractAction() {
 
@@ -349,13 +383,13 @@ public class VoucherTransaction extends JFrame {
 				int col = tab.getSelectedColumn();
 				if (tab.getRowCount() <= 0) {
 					DataBaseModel dm = (DataBaseModel) tab.getModel();
-					DataEntry de = new DataEntry("", 0.0, 0.0);
+					DataEntry de = new DataEntry("", 0.00, 0.00);
 					dm.addRow(de);
 					tab.changeSelection(row + 1, 0, false, false);
 				}
 				if (col == tab.getColumnCount() - 1 && row == tab.getRowCount() - 1) {
 					DataBaseModel dm = (DataBaseModel) tab.getModel();
-					DataEntry de = new DataEntry("", 0.0, 0.0);
+					DataEntry de = new DataEntry("", 0.00, 0.00);
 					dm.addRow(de);
 					tab.changeSelection(row + 1, 0, false, false);
 
@@ -381,7 +415,7 @@ public class VoucherTransaction extends JFrame {
 			public void editingStopped(ChangeEvent e) {
 				SearchFrameTest ft;
 				ft = new SearchFrameTest(SearchModel);
-                                ft.setAlwaysOnTop(true);
+                                
 				if (!SearchModel.checkAlias(TransactionField.getText())) {
 					ft.setFilterText(TransactionField.getText());
 					ft.setVisible(true);
@@ -406,10 +440,18 @@ public class VoucherTransaction extends JFrame {
 			}
 		});
 		table.getColumnModel().getColumn(0).setCellEditor(TransEditor);
-		GenericEditorForFields ge = new GenericEditorForFields(table);
+		DecimalFormat def = new DecimalFormat ("##,##,###.######");
+		JFormattedTextField field  = new JFormattedTextField(def);
+		field.setFont(new Font("", Font.BOLD, 18));
+		field.setHorizontalAlignment(JTextField.RIGHT);
+		
+//		GenericEditorForFields ge = new GenericEditorForFields(table);
+//		DefaultCellEditor df = new DefaultCellEditor(field);
 		table.getColumnModel().getColumn(1).setCellEditor(new GenericEditorForFields(table));
-		table.getColumnModel().getColumn(2).setCellEditor(new GenericEditorForFields(table));
+
+table.getColumnModel().getColumn(2).setCellEditor(new GenericEditorForFields(table));
 		table.getColumnModel().getColumn(1).setCellRenderer(new DoubleRenderer());
+		table.getColumnModel().getColumn(2).setCellRenderer(new DoubleRenderer());
 		KeyStroke delete = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0);
 		table.getInputMap(JTable.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(delete, "Delete");
 		table.getActionMap().put("Delete", new AbstractAction() {
@@ -437,9 +479,15 @@ public class VoucherTransaction extends JFrame {
 
 	public void clearVoucher() {
 		this.dtm.getDataEntryList().clear();
-		this.dtm.addRow(new DataEntry("",0,0));
+		this.dtm.addRow(new DataEntry("",0.00,0.00));
 		this.setNarrationField("");
 		this.clearCreditTotalField();
 		this.clearDebitTotalField();
+		this.table.requestFocus();
+//		this.table.requestDefaultFocus();
+		this.table.requestFocusInWindow();
+		this.table.editCellAt(0, 0);
+		this.table.changeSelection(0, 0, true, false);
+		
 	}
 }

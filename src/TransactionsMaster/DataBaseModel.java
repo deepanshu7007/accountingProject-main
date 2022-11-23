@@ -1,6 +1,5 @@
 package TransactionsMaster;
-
-import java.awt.Taskbar.State;
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -8,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Vector;
 
+import javax.swing.SwingWorker;
 import javax.swing.table.AbstractTableModel;
 
 import LedgerMaster.OpenDataBase;
@@ -18,8 +18,8 @@ import java.sql.Date;
 public class DataBaseModel extends AbstractTableModel {
 	private ArrayList<DataEntry> DataEntryList;
 	protected Double TempValue;
-	private Object bValue;
-
+//	private Object bValue;
+	
 	public Double getTempValue() {
 		return this.TempValue;
 	}
@@ -74,7 +74,7 @@ public class DataBaseModel extends AbstractTableModel {
 
 	private final String[] columnNames = new String[] { "Account", "Debit", "Credit" };
 
-	private final Class[] columnClass = new Class[] { String.class, Double.class, Double.class };
+	private final Class[] columnClass = new Class[] { String.class,Double.class, Double.class };
 
 	@Override
 	public String getColumnName(int column) {
@@ -117,21 +117,21 @@ public class DataBaseModel extends AbstractTableModel {
 		return true;
 	}
 
-	public void setAliasValue(Object bValue) {
-		this.bValue = bValue;
-	}
+//	public void setAliasValue(Object bValue) {
+////		this.bValue = bValue;
+//	}
 
 	@Override
 	public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
 		DataEntry row = DataEntryList.get(rowIndex);
 
 		if (1 == columnIndex) {
-			row.setDebitValue((Double) aValue);
+			row.setDebitValue(Double.parseDouble(aValue.toString()));
 			row.setSide('D');
 			setTotalDebit(getTotalDebit() - TempValue + Double.valueOf(aValue.toString()));
 		}
 		if (2 == columnIndex) {
-			row.setCreditValue((Double) aValue);
+			row.setCreditValue(Double.parseDouble(aValue.toString()));
 			row.setSide('C');
 			setTotalCredit(getTotalCredit() - TempValue + Double.valueOf(aValue.toString()));
 		}
@@ -201,6 +201,7 @@ public class DataBaseModel extends AbstractTableModel {
 		Date transDate = new Date(transactionDate.getTime());
 		PreparedStatement stmt = con.prepareStatement(
 				"INSERT INTO TRANSACTIONMASTER (TTYPE,TDOC,TDATE,TCODE,NAME,TDBCR,TNAR1,TAMT) VALUES (?,?,?,?,?,?,?,?)");
+		CallableStatement cstmt = con.prepareCall("{call get_account(?,?,?)}");
 		con.setAutoCommit(false);
 		for (DataEntry de : DataEntryList) {
 			stmt.setString(5, de.getAccountName());
@@ -211,11 +212,25 @@ public class DataBaseModel extends AbstractTableModel {
 			stmt.setString(7, narration);
 			stmt.setDouble(8, de.getTotalValue());
 			stmt.setString(6, String.valueOf(de.getSide()));
+			cstmt.setString(1, de.getAliasName());
+			cstmt.setDouble(2,de.getTotalValue());
+			cstmt.setString(3,String.valueOf(de.getSide()));
+			
+			cstmt.addBatch();
 			stmt.addBatch();
 		}
-		stmt.executeBatch();
-		con.commit();
-		con.close();
+		SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+			   @Override
+			   protected Void doInBackground() throws Exception {
+				   stmt.executeBatch();
+				   cstmt.executeBatch();
+					con.commit();
+					con.close();
+			    return null;
+			   }
+			  };
+			  
+			  worker.execute();
 		
 	}
 

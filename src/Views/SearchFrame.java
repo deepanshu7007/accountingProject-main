@@ -194,6 +194,10 @@ public class SearchFrame extends JFrame {
 	     setSize(1163, 882);
 	     filterText.requestFocus();
 	}
+	public int getSelectedRow()
+	{
+		return table.getSelectedRow();
+	}
 	private void assigningForm()
 	{
 		String type="";

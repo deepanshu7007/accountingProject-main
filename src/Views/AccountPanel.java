@@ -1,6 +1,8 @@
 package Views;
 import java.awt.EventQueue;
 import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
+
 import java.awt.GridBagLayout;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -16,11 +18,14 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Vector;
 
 import javax.swing.JTextPane;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.text.JTextComponent;
 
 import LedgerMaster.OpenDataBase;
+import accountingproject.MasterPresistables;
 import accountingproject.mainInintials;
 
 import java.awt.Font;
@@ -29,7 +34,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-public class AccountPanel extends JFrame {
+public class AccountPanel extends JInternalFrame implements MasterPresistables {
 	protected JTextPane AddressField;
 	protected SearchFrame sf;
 	protected DTextField NameField;
@@ -44,11 +49,11 @@ public class AccountPanel extends JFrame {
 	protected DTextField EmailField;
 	protected DTextField PhoneField;
 	protected JTextPane CommentBox;
+	private String aliasName;
+	private JButton SaveButton;
 	protected DTextField PanField, OverdraftField, TinField;
-	protected mainInintials.MainTools mi;
-	public AccountPanel(String title) {
-		
-		
+	
+	public AccountPanel() {
 		setBounds(100, 100, 859, 725);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		GridBagLayout gridBagLayout = new GridBagLayout();
@@ -366,7 +371,7 @@ public class AccountPanel extends JFrame {
 		gbc_CommentBox.gridy = 16;
 		getContentPane().add(CommentBox, gbc_CommentBox);
 
-		JButton SaveButton = new JButton("SAVE");
+		SaveButton = new JButton("SAVE");
 		SaveButton.setFont(new Font("Tahoma", Font.PLAIN, 25));
 		GridBagConstraints gbc_SaveButton = new GridBagConstraints();
 		gbc_SaveButton.fill = GridBagConstraints.BOTH;
@@ -387,196 +392,8 @@ public class AccountPanel extends JFrame {
 		gbc_CancelButton.gridx = 1;
 		gbc_CancelButton.gridy = 17;
 		getContentPane().add(CancelButton, gbc_CancelButton);
-		if(title.equals("INSERT"))
-		{
-			NameField.addKeyListener(new KeyAdapter() {
-				@Override
-				public void keyPressed(KeyEvent e) {
-					if (e.getKeyChar() == e.VK_ENTER) {
-						if (NameField.getText().isEmpty()) {
-							JOptionPane.showMessageDialog(null, "This Field should not be empty");
-							NameField.requestFocus();
-						} else {
-							OpenDataBase db = new OpenDataBase();
-							AliasField.setText(db.getAliasName(NameField.getText()));
-							SubGroupField.requestFocus();
-						}
-					}
-				}
-			});
-			SubGroupField.addKeyListener(new KeyAdapter() {
-				@Override
-				public void keyPressed(KeyEvent e) {
-					if (e.getKeyChar() == e.VK_ENTER) {
-						if (e.getKeyChar() == e.VK_ENTER) {
-								PriorityField.requestFocus();
-								sf = new SearchFrame("ALIAS,NAME","SUBGROUPMASTER");
-								sf.setVisible(true);
-								sf.addWindowListener(new WindowAdapter() {
-									public void windowClosed(WindowEvent e) {
-										SubGroupField.setText(sf.get("NAME"));
-									}
-								});
-							}
-					}
-				}
-			});
-			SaveButton.addKeyListener(new KeyAdapter() {
-				@Override
-				public void keyPressed(KeyEvent e) {
-					if (e.getKeyChar() == e.VK_ENTER) {
-						if(NameField.getText().isEmpty()||AliasField.getText().isEmpty()||PriorityField.getText().isEmpty()||SubGroupField.getText().isEmpty()) {
-							JOptionPane.showMessageDialog(null, "Some of the major fields are Empty");
-						}else
-						InsertTable();
-					}
-				}
-			});
-			SaveButton.addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseClicked(MouseEvent arg0) {
-					
-						if(NameField.getText().isEmpty()||AliasField.getText().isEmpty()||PriorityField.getText().isEmpty()||SubGroupField.getText().isEmpty()) {
-							JOptionPane.showMessageDialog(null, "Some of the major fields are Empty");
-						}else
-						InsertTable();
-					
-				}
-			});
-		}
-		if(title.equals("UPDATE"))
-		{
-			AliasField.setEditable(false);
-			setVisible(true);
-			sf = new SearchFrame("ALIAS,NAME","ACCOUNTMASTER");
-			sf.setVisible(true);
-			
-			sf.addWindowListener(new WindowAdapter() {
-				public void windowClosed(WindowEvent e)
-				{
-					NameField.requestFocus();
-					NameField.setText(sf.get("NAME"));
-					 AliasField.setText(sf.get("ALIAS"));
-					SubGroupField.setText(sf.get("SUBGROUP"));
-					AddressField.setText(sf.get("ADDRESS"));
-					CityField.setText(sf.get("CITY"));
-					StateField.setText(sf.get("STATE"));
-					PinCodeField.setText(sf.get("PINCODE"));
-					PhoneField.setText(sf.get("PHONE"));
-					EmailField.setText(sf.get("E_MAIL"));
-					 PanField.setText(sf.get("PANNUM"));
-					 TinField.setText(sf.get("TANNUM"));
-					 GstField.setText(sf.get("GSTNUM"));
-					 UserField.setText(sf.get("USER_IN"));
-					 OverdraftField.setText(sf.get("OP_BAL"));
-					 CommentBox.setText(sf.get("COMMENT"));
-					 PriorityField.setText(sf.get("PRIORITY"));
-				}
-			});
-			SaveButton.addKeyListener(new KeyAdapter() {
-				@Override
-				public void keyPressed(KeyEvent e) {
-					if (e.getKeyChar() == e.VK_ENTER) {
-						if(NameField.getText().isEmpty()||AliasField.getText().isEmpty()||PriorityField.getText().isEmpty()||SubGroupField.getText().isEmpty()) {
-							JOptionPane.showMessageDialog(null, "Some of the major fields are Empty");
-						}else
-						UpdateTable();
-					}
-				}
-			});
-			SaveButton.addActionListener(new ActionListener() {
-				
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					
-						if(NameField.getText().isEmpty()||AliasField.getText().isEmpty()||PriorityField.getText().isEmpty()||SubGroupField.getText().isEmpty()) {
-							JOptionPane.showMessageDialog(null, "Some of the major fields are Empty");
-						}else
-						UpdateTable();
-					
-					
-				}
-			});
-			
-			NameField.addKeyListener(new KeyAdapter() {
-				@Override
-				public void keyPressed(KeyEvent e) {
-					if (e.getKeyChar() == e.VK_ENTER) {
-						if (NameField.getText().isEmpty()) {
-							JOptionPane.showMessageDialog(null, "This Field should not be empty");
-							NameField.requestFocus();
-						} else {
-							SubGroupField.requestFocus();
-						}
-					}
-				}
-			});
-			SubGroupField.addKeyListener(new KeyAdapter() {
-				@Override
-				public void keyPressed(KeyEvent e) {
-					if (e.getKeyChar() == e.VK_ENTER) {
-						if (e.getKeyChar() == e.VK_ENTER) {
-							
-								PriorityField.requestFocus();
-								sf = new SearchFrame("ALIAS,NAME","SubGroupMaster");
-								sf.setVisible(true);
-								sf.addWindowListener(new WindowAdapter() {
-									public void windowClosed(WindowEvent e) {
-										SubGroupField.setText(sf.get("NAME"));
-									}
-								});
-							}
-					}
-				}
-			});
-		}
-		if(title.equals("VIEW"))
-		{
-			NameField.setEditable(false);
-			 AliasField.setEditable(false);
-			SubGroupField.setEditable(false);
-			AddressField.setEditable(false);
-			CityField.setEditable(false);
-			StateField.setEditable(false);
-			PinCodeField.setEditable(false);
-			PhoneField.setEditable(false);
-			EmailField.setEditable(false);
-			 PanField.setEditable(false);
-			 TinField.setEditable(false);
-			 GstField.setEditable(false);
-			 UserField.setEditable(false);
-			 OverdraftField.setEditable(false);
-			 CommentBox.setEditable(false);
-			AliasField.setEditable(false);
-			PriorityField.setEditable(false);
-			setVisible(true);
-			sf = new SearchFrame("ALIAS,NAME","ACCOUNTMASTER");
-			sf.setVisible(true);
-			
-			sf.addWindowListener(new WindowAdapter() {
-				public void windowClosed(WindowEvent e)
-				{
-					NameField.setText(sf.get("NAME"));
-					 AliasField.setText(sf.get("ALIAS"));
-					SubGroupField.setText(sf.get("SUBGROUP"));
-					AddressField.setText(sf.get("ADDRESS"));
-					CityField.setText(sf.get("CITY"));
-					StateField.setText(sf.get("STATE"));
-					PinCodeField.setText(sf.get("PINCODE"));
-					PhoneField.setText(sf.get("PHONE"));
-					EmailField.setText(sf.get("E_MAIL"));
-					 PanField.setText(sf.get("PANNUM"));
-					TinField.setText(sf.get("TANNUM"));
-					 GstField.setText(sf.get("GSTNUM"));
-					 UserField.setText(sf.get("USER_IN"));
-					 OverdraftField.setText(sf.get("OP_BAL"));
-					 CommentBox.setText(sf.get("COMMENT"));
-					 PriorityField.setText(sf.get("PRIORITY"));
-				}
-			});
-		}
-}
-void UpdateTable()
+	}
+void UpdateTable(DefaultTableModel dtm,int row)
 {
 	try {
 		OpenDataBase db = new OpenDataBase();
@@ -584,7 +401,7 @@ void UpdateTable()
 				"UPDATE ACCOUNTMASTER SET NAME=?,SUBGROUP=?,ADDRESS=?,CITY=?,STATE=?,PINCODE=?,PHONE=?,E_MAIL=?,PANNUM=?,TANNUM=?,GSTNUM=?,USER_IN=?,OP_BAL=?,COMMENT=?,PRIORITY=? WHERE ALIAS=?");
 		stmt.setString(1, NameField.getText());
 		stmt.setString(16, AliasField.getText());
-		stmt.setString(2, SubGroupField.getText());
+		stmt.setString(2,aliasName);
 		stmt.setString(3, AddressField.getText());
 		stmt.setString(4, CityField.getText());
 		stmt.setString(5, StateField.getText());
@@ -601,6 +418,8 @@ void UpdateTable()
 		if (stmt.executeUpdate() > 0) {
 			
 			NameField.requestFocus();
+			dtm.setValueAt(AliasField.getText(),row, 0);
+			dtm.setValueAt(NameField.getText(),row, 1);
 			JOptionPane.showMessageDialog(null, "Record UPDATED successfully");
 			NameField.setText("");
 			AliasField.setText("");
@@ -636,14 +455,14 @@ void UpdateTable()
 		exception.printStackTrace();
 	}
 }
-	void InsertTable() {
+	void InsertTable(DefaultTableModel dtm) {
 		try {
 			OpenDataBase db = new OpenDataBase();
 			PreparedStatement stmt = db.getDataBaseConnection().prepareStatement(
 					"INSERT INTO ACCOUNTMASTER(NAME,ALIAS,SUBGROUP,ADDRESS,CITY,STATE,PINCODE,PHONE,E_MAIL,PANNUM,TANNUM,GSTNUM,USER_IN,OP_BAL,COMMENT,PRIORITY) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 			stmt.setString(1, NameField.getText());
 			stmt.setString(2, AliasField.getText());
-			stmt.setString(3, SubGroupField.getText());
+			stmt.setString(3, aliasName);
 			stmt.setString(4, AddressField.getText());
 			stmt.setString(5, CityField.getText());
 			stmt.setString(6, StateField.getText());
@@ -654,12 +473,16 @@ void UpdateTable()
 			stmt.setString(11, TinField.getText());
 			stmt.setString(12, GstField.getText());
 			stmt.setString(13, UserField.getText());
-			stmt.setString(14, OverdraftField.getText());
+			stmt.setDouble(14, 0.00);
 			stmt.setString(15, CommentBox.getText());
 			stmt.setString(16,PriorityField.getText());
 			if (stmt.executeUpdate() > 0) {
 				NameField.requestFocus();
 				JOptionPane.showMessageDialog(null, "Record Inserted successfully");
+				Vector<String> rowData = new Vector<>();
+				rowData.add(AliasField.getText());
+				rowData.add(NameField.getText());
+				dtm.addRow(rowData);
 				NameField.setText("");
 				AliasField.setText("");
 				SubGroupField.setText("");
@@ -695,4 +518,203 @@ void UpdateTable()
 			exception.printStackTrace();
 		}
 	}
+	@Override
+	public void insertRecord(DefaultTableModel dtm) {
+		NameField.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyChar() == e.VK_ENTER) {
+					if (NameField.getText().isEmpty()) {
+						JOptionPane.showMessageDialog(null, "This Field should not be empty");
+						NameField.requestFocus();
+					} else {
+						OpenDataBase db = new OpenDataBase();
+						AliasField.setText(db.getAliasName(NameField.getText()));
+						SubGroupField.requestFocus();
+					}
+				}
+			}
+		});
+		SubGroupField.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyChar() == e.VK_ENTER) {
+					if (e.getKeyChar() == e.VK_ENTER) {
+							PriorityField.requestFocus();
+							sf = new SearchFrame("ALIAS,NAME","SUBGROUPMASTER");
+							sf.setVisible(true);
+							sf.addWindowListener(new WindowAdapter() {
+								public void windowClosed(WindowEvent e) {
+									SubGroupField.setText(sf.get("NAME"));
+									aliasName = sf.get("ALIAS");
+								}
+							});
+						}
+				}
+			}
+		});
+		SaveButton.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyChar() == e.VK_ENTER) {
+					if(NameField.getText().isEmpty()||AliasField.getText().isEmpty()||PriorityField.getText().isEmpty()||SubGroupField.getText().isEmpty()) {
+						JOptionPane.showMessageDialog(null, "Some of the major fields are Empty");
+					}else
+					InsertTable(dtm);
+				}
+			}
+		});
+		SaveButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				
+					if(NameField.getText().isEmpty()||AliasField.getText().isEmpty()||PriorityField.getText().isEmpty()||SubGroupField.getText().isEmpty()) {
+						JOptionPane.showMessageDialog(null, "Some of the major fields are Empty");
+					}else
+					InsertTable(dtm);
+				
+			}
+		});		
+	}
+	@Override
+	public void deleteRecord() {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void editRecord(DefaultTableModel dtm) {
+		AliasField.setEditable(false);
+		setVisible(true);
+		sf = new SearchFrame("ALIAS,NAME","ACCOUNTMASTER");
+		sf.setVisible(true);
+		
+		sf.addWindowListener(new WindowAdapter() {
+			public void windowClosed(WindowEvent e)
+			{
+				NameField.requestFocus();
+				NameField.setText(sf.get("NAME"));
+				 AliasField.setText(sf.get("ALIAS"));
+				SubGroupField.setText(sf.get("SUBGROUP"));
+				AddressField.setText(sf.get("ADDRESS"));
+				CityField.setText(sf.get("CITY"));
+				StateField.setText(sf.get("STATE"));
+				PinCodeField.setText(sf.get("PINCODE"));
+				PhoneField.setText(sf.get("PHONE"));
+				EmailField.setText(sf.get("E_MAIL"));
+				 PanField.setText(sf.get("PANNUM"));
+				 TinField.setText(sf.get("TANNUM"));
+				 GstField.setText(sf.get("GSTNUM"));
+				 UserField.setText(sf.get("USER_IN"));
+				 OverdraftField.setText(sf.get("OP_BAL"));
+				 CommentBox.setText(sf.get("COMMENT"));
+				 PriorityField.setText(sf.get("PRIORITY"));
+			}
+		});
+		SaveButton.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyChar() == e.VK_ENTER) {
+					if(NameField.getText().isEmpty()||AliasField.getText().isEmpty()||PriorityField.getText().isEmpty()||SubGroupField.getText().isEmpty()) {
+						JOptionPane.showMessageDialog(null, "Some of the major fields are Empty");
+					}else
+					UpdateTable(dtm,sf.getSelectedRow());
+				}
+			}
+		});
+		SaveButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+					if(NameField.getText().isEmpty()||AliasField.getText().isEmpty()||PriorityField.getText().isEmpty()||SubGroupField.getText().isEmpty()) {
+						JOptionPane.showMessageDialog(null, "Some of the major fields are Empty");
+					}else
+					UpdateTable(dtm,sf.getSelectedRow());
+				
+				
+			}
+		});
+		
+		NameField.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyChar() == e.VK_ENTER) {
+					if (NameField.getText().isEmpty()) {
+						JOptionPane.showMessageDialog(null, "This Field should not be empty");
+						NameField.requestFocus();
+					} else {
+						SubGroupField.requestFocus();
+					}
+				}
+			}
+		});
+		SubGroupField.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyChar() == e.VK_ENTER) {
+					if (e.getKeyChar() == e.VK_ENTER) {
+						
+							PriorityField.requestFocus();
+							sf = new SearchFrame("ALIAS,NAME","SUBGROUPMASTER");
+							sf.setVisible(true);
+							sf.addWindowListener(new WindowAdapter() {
+								public void windowClosed(WindowEvent e) {
+									SubGroupField.setText(sf.get("NAME"));
+									aliasName = sf.get("ALIAS");
+								}
+							});
+						}
+				}
+			}
+		});
+		
+	}
+	@Override
+	public void viewRecord() {
+		NameField.setEditable(false);
+		 AliasField.setEditable(false);
+		SubGroupField.setEditable(false);
+		AddressField.setEditable(false);
+		CityField.setEditable(false);
+		StateField.setEditable(false);
+		PinCodeField.setEditable(false);
+		PhoneField.setEditable(false);
+		EmailField.setEditable(false);
+		 PanField.setEditable(false);
+		 TinField.setEditable(false);
+		 GstField.setEditable(false);
+		 UserField.setEditable(false);
+		 OverdraftField.setEditable(false);
+		 CommentBox.setEditable(false);
+		AliasField.setEditable(false);
+		PriorityField.setEditable(false);
+		setVisible(true);
+		sf = new SearchFrame("ALIAS,NAME","ACCOUNTMASTER");
+		sf.setVisible(true);
+		
+		sf.addWindowListener(new WindowAdapter() {
+			public void windowClosed(WindowEvent e)
+			{
+				NameField.setText(sf.get("NAME"));
+				 AliasField.setText(sf.get("ALIAS"));
+				SubGroupField.setText(sf.get("SUBGROUP"));
+				AddressField.setText(sf.get("ADDRESS"));
+				CityField.setText(sf.get("CITY"));
+				StateField.setText(sf.get("STATE"));
+				PinCodeField.setText(sf.get("PINCODE"));
+				PhoneField.setText(sf.get("PHONE"));
+				EmailField.setText(sf.get("E_MAIL"));
+				 PanField.setText(sf.get("PANNUM"));
+				TinField.setText(sf.get("TANNUM"));
+				 GstField.setText(sf.get("GSTNUM"));
+				 UserField.setText(sf.get("USER_IN"));
+				 OverdraftField.setText(sf.get("OP_BAL"));
+				 CommentBox.setText(sf.get("COMMENT"));
+				 PriorityField.setText(sf.get("PRIORITY"));
+			}
+		});
+	
+		
+	}
+	
 }

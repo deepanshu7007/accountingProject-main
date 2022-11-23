@@ -132,7 +132,12 @@ public class LedgerTableModel extends AbstractTableModel {
 		Data.add(al);
 		fireTableDataChanged();
 	}
-
+	public void setValueAt(DataEntry al,int row)
+	{
+		DataEntry rowData = Data.get(row);
+		rowData.setDebitValue(10);
+		fireTableDataChanged();
+	}
 	private double calculateBalance(String side, double balance) {
 		if (side.charAt(0) == 'D') {
 			totalBalance = totalBalance + balance;

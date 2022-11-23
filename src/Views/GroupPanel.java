@@ -1,9 +1,12 @@
 package Views;
 
 import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JRootPane;
+import javax.swing.table.DefaultTableModel;
+
 import LedgerMaster.OpenDataBase;
 import accountingproject.MasterPresistables;
 import java.awt.GridBagLayout;
@@ -21,14 +24,16 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Vector;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.ActionEvent;
 
-public class GroupPanel extends JFrame implements MasterPresistables{
+public class GroupPanel extends JInternalFrame implements MasterPresistables{
 	protected DTextField nameField;
 	protected DTextField aliasField;
 	protected DTextField priorityField;
@@ -37,7 +42,7 @@ public class GroupPanel extends JFrame implements MasterPresistables{
 	protected SearchFrame  sp ;
 	
 	private JFrame frame;
-	public GroupPanel(String name) {
+	public GroupPanel() {
 		
 		setSize(860,735);
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -181,200 +186,12 @@ public class GroupPanel extends JFrame implements MasterPresistables{
 				gbc_cancelButton.gridx = 1;
 				gbc_cancelButton.gridy = 13;
 				getContentPane().add(cancelButton, gbc_cancelButton);
-				if(name.equals("VIEW"))
-				{
-					setVisible(true);
-					SearchFrame sf=new SearchFrame("ALIAS,NAME","GROUPMASTER");
-					sf.setVisible(true);
-					sf.addWindowListener(new WindowAdapter() {
-					public void windowClosed(WindowEvent e)
-					{
-						nameField.setText(sf.get("NAME"));
-						aliasField.setText(sf.get("ALIAS"));
-						priorityField.setText(sf.get("PRIORITY"));
-						typeBox.setSelectedItem(sf.get("HEAD_ALIAS"));
-					}
-					});
-					nameField.setEditable(false);
-					aliasField.setEditable(false);
-					priorityField.setEditable(false);
-					typeBox.setEditable(false);
-					saveButton.setEnabled(false);
-				}
-				if(name.equals("INSERT"))
-				{
-					setTitle("Insert Group Item");
-					
-					nameField.addKeyListener(new KeyAdapter() {
-					@Override
-					public void keyPressed(KeyEvent e) {
-						
-						if (e.getKeyChar() == KeyEvent.VK_ENTER) {
-							
-							if (nameField.getText().isEmpty()) {
-								JOptionPane.showMessageDialog(null, "Please enter some values to the field");
-								nameField.requestFocus();
-							} else {
-								OpenDataBase db = new OpenDataBase();
-								    	aliasField.setText(db.getAliasName(nameField.getText()));
-										db.ConClosed();
-								    	aliasField.requestFocus();
-							}
-						}
-					}
-				});
-					aliasField.addKeyListener(new KeyAdapter() {
-					@Override
-					public void keyPressed(KeyEvent e) {
-						if (e.getKeyChar() == KeyEvent.VK_ENTER) {
-							if (aliasField.getText().isEmpty() || aliasField.getText().contains(" ")) {
-								JOptionPane.showMessageDialog(null, "This field should not be empty");
-								aliasField.requestFocus();
-							} else {
-								priorityField.requestFocus();
-							}
-						}
-					}
-				});
-					priorityField.addKeyListener(new KeyAdapter() {
-					@Override
-					public void keyPressed(KeyEvent e) {
-						if(e.getKeyChar()==e.VK_ENTER)
-						{
-						if(priorityField.getText().isEmpty())
-						{
-							JOptionPane.showMessageDialog(null,"This Field should not be empty");
-							priorityField.requestFocus();
-						}
-						typeBox.requestFocus();
-					}
-			}
-				});
-					typeBox.addKeyListener(new KeyAdapter() {
-					@Override
-					public void keyPressed(KeyEvent e) {
-						if(e.getKeyChar() == KeyEvent.VK_ENTER)
-							{saveButton.requestFocus();}
-					}
-				});
-					saveButton.addKeyListener(new KeyAdapter() {
-					@Override
-					public void keyReleased(KeyEvent e) {
-						if (e.getKeyChar() == KeyEvent.VK_ENTER) {
-							if(nameField.getText().isEmpty() || aliasField.getText().isEmpty() || priorityField.getText().isEmpty())
-							{
-								JOptionPane.showMessageDialog(null,"Some of the major fields are empty");
-								nameField.requestFocus();
-							}
-							else
-			InsertTable();
-							repaint();
-							revalidate();
-						}
-					}
-				});
-					saveButton.addActionListener(new ActionListener() {
-						
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							if(nameField.getText().isEmpty() || aliasField.getText().isEmpty() || priorityField.getText().isEmpty())
-								{
-									JOptionPane.showMessageDialog(null,"Some of the major fields are empty");
-									nameField.requestFocus();
-								}
-								else
-									InsertTable();
-						}
-					});
-				}if(name.equals("UPDATE"))
-				{
-					
-					sp = new SearchFrame("ALIAS,NAME","GROUPMASTER");
-					sp.setVisible(true);
-					sp.setVisible(true);
-					nameField.addKeyListener(new KeyAdapter() {
-						@Override
-						public void keyPressed(KeyEvent e) {
-							
-							if (e.getKeyChar() == KeyEvent.VK_ENTER) {
-								
-								if (nameField.getText().isEmpty()) {
-									JOptionPane.showMessageDialog(null, "Please enter some values to the field");
-									nameField.requestFocus();
-								} else {
-									
-									priorityField.requestFocus();
-								}
-							}
-						}
-					});
-						
-						priorityField.addKeyListener(new KeyAdapter() {
-						@Override
-						public void keyPressed(KeyEvent e) {
-							if(e.getKeyChar()==e.VK_ENTER)
-							{
-							if(priorityField.getText().isEmpty())
-							{
-								JOptionPane.showMessageDialog(null,"This Field should not be empty");
-								priorityField.requestFocus();
-							}
-							typeBox.requestFocus();
-						}
-				}
-					});
-						typeBox.addKeyListener(new KeyAdapter() {
-						@Override
-						public void keyPressed(KeyEvent e) {
-							if(e.getKeyChar() == KeyEvent.VK_ENTER)
-								{saveButton.requestFocus();}
-						}
-					});
-					setTitle("Update Group Panel");
-					saveButton.addKeyListener(new KeyAdapter() {
-					@Override
-					public void keyPressed(KeyEvent e) {
-						if (e.getKeyChar() == KeyEvent.VK_ENTER) {
-							if(nameField.getText().isEmpty() || aliasField.getText().isEmpty() || priorityField.getText().isEmpty())
-							{
-								JOptionPane.showMessageDialog(null,"Some of the major fields are empty");
-								nameField.requestFocus();
-							}
-							else
-			UpdateTable();
-						}
-					}
-				});
-					nameField.addFocusListener(new FocusAdapter() {
-					public void focusGained(FocusEvent e)
-					{
-						nameField.setText(sp.get("NAME"));
-						aliasField.setText(sp.get("ALIAS"));
-						priorityField.setText(sp.get("PRIORITY"));
-						aliasField.setEnabled(false);
-					}
-					});
-			saveButton.addActionListener(new ActionListener() {
-						
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							if(nameField.getText().isEmpty() || aliasField.getText().isEmpty() || priorityField.getText().isEmpty())
-								{
-									JOptionPane.showMessageDialog(null,"Some of the major fields are empty");
-									nameField.requestFocus();
-								}
-								else
-									UpdateTable();
-						}
-					});
-					setTitle("Update Group Panel");
-				}
-				if(name.equals("VIEW"))
-				{
-					
-				}
+				
+				
 	}
-	void InsertTable()
+					
+				
+	void InsertTable(DefaultTableModel dtm)
 	{
 		OpenDataBase db = new OpenDataBase();
 		PreparedStatement stmt;
@@ -387,6 +204,10 @@ public class GroupPanel extends JFrame implements MasterPresistables{
 			if (stmt.executeUpdate()>0) {
 				nameField.requestFocus();
 				JOptionPane.showMessageDialog(null, "Record Inserted successfully");
+				Vector<String> rowData = new Vector<>();
+				rowData.add(nameField.getText());
+				rowData.add(aliasField.getText());
+				dtm.addRow(rowData);
 				nameField.setText("");
 				aliasField.setText("");
 				priorityField.setText("");		
@@ -413,7 +234,10 @@ public class GroupPanel extends JFrame implements MasterPresistables{
 			revalidate();
 		}
 	}
-	void UpdateTable()
+	
+	
+	
+	void UpdateTable(DefaultTableModel dtm,int row)
 	{
 		
 		OpenDataBase db = new OpenDataBase();
@@ -426,9 +250,12 @@ public class GroupPanel extends JFrame implements MasterPresistables{
 			if (stmt.executeUpdate()>0) {
 				nameField.requestFocus();
 				JOptionPane.showMessageDialog(null, "Record updated successfully");
+				dtm.setValueAt(aliasField.getText(), row, 0);
+				dtm.setValueAt(nameField.getText(), row, 1);
 				nameField.setText("");
 				aliasField.setText("");
-				priorityField.setText("");		
+				priorityField.setText("");
+				typeBox.setSelectedItem("ASSETS");
 			} else {
 				JOptionPane.showMessageDialog(null, "Something Went Wrong");
 			}
@@ -450,9 +277,97 @@ public class GroupPanel extends JFrame implements MasterPresistables{
 			System.out.println("DATABASE CONNECTION CLOSED FOR UPDATE TABLE FOR GROUPMASTER");
 		}
 	}
+	
+	
+	
+	
+	
 	@Override
-	public void insertRecord() {
+	public void insertRecord(DefaultTableModel dtm) {
+		setTitle("Insert Group Item");
 		
+		nameField.addKeyListener(new KeyAdapter() {
+		@Override
+		public void keyPressed(KeyEvent e) {
+			
+			if (e.getKeyChar() == KeyEvent.VK_ENTER) {
+				
+				if (nameField.getText().isEmpty()) {
+					JOptionPane.showMessageDialog(null, "Please enter some values to the field");
+					nameField.requestFocus();
+				} else {
+					OpenDataBase db = new OpenDataBase();
+					    	aliasField.setText(db.getAliasName(nameField.getText()));
+							db.ConClosed();
+					    	aliasField.requestFocus();
+				}
+			}
+		}
+	});
+		aliasField.addKeyListener(new KeyAdapter() {
+		@Override
+		public void keyPressed(KeyEvent e) {
+			if (e.getKeyChar() == KeyEvent.VK_ENTER) {
+				if (aliasField.getText().isEmpty() || aliasField.getText().contains(" ")) {
+					JOptionPane.showMessageDialog(null, "This field should not be empty");
+					aliasField.requestFocus();
+				} else {
+					priorityField.requestFocus();
+				}
+			}
+		}
+	});
+		priorityField.addKeyListener(new KeyAdapter() {
+		@Override
+		public void keyPressed(KeyEvent e) {
+			if(e.getKeyChar()==e.VK_ENTER)
+			{
+			if(priorityField.getText().isEmpty())
+			{
+				JOptionPane.showMessageDialog(null,"This Field should not be empty");
+				priorityField.requestFocus();
+			}
+			typeBox.requestFocus();
+		}
+}
+	});
+		typeBox.addKeyListener(new KeyAdapter() {
+		@Override
+		public void keyPressed(KeyEvent e) {
+			if(e.getKeyChar() == KeyEvent.VK_ENTER)
+				{saveButton.requestFocus();}
+		}
+	});
+		saveButton.addKeyListener(new KeyAdapter() {
+		@Override
+		public void keyReleased(KeyEvent e) {
+			if (e.getKeyChar() == KeyEvent.VK_ENTER) {
+				if(nameField.getText().isEmpty() || aliasField.getText().isEmpty() || priorityField.getText().isEmpty())
+				{
+					JOptionPane.showMessageDialog(null,"Some of the major fields are empty");
+					nameField.requestFocus();
+				}
+				else
+InsertTable(dtm);
+				repaint();
+				revalidate();
+			}
+		}
+	});
+		saveButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(nameField.getText().isEmpty() || aliasField.getText().isEmpty() || priorityField.getText().isEmpty())
+					{
+						JOptionPane.showMessageDialog(null,"Some of the major fields are empty");
+						nameField.requestFocus();
+					}
+					else
+						InsertTable(dtm);
+			}
+		});
+	
 	}
 	@Override
 	public void deleteRecord() {
@@ -460,13 +375,112 @@ public class GroupPanel extends JFrame implements MasterPresistables{
 		
 	}
 	@Override
-	public void editRecord() {
-		// TODO Auto-generated method stub
-		
+	public void editRecord(DefaultTableModel dtm) {
+		sp = new SearchFrame("ALIAS,NAME","GROUPMASTER");
+		sp.setVisible(true);
+	
+		nameField.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				
+				if (e.getKeyChar() == KeyEvent.VK_ENTER) {
+					
+					if (nameField.getText().isEmpty()) {
+						JOptionPane.showMessageDialog(null, "Please enter some values to the field");
+						nameField.requestFocus();
+					} else {
+						
+						priorityField.requestFocus();
+					}
+				}
+			}
+		});
+			
+			priorityField.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if(e.getKeyChar()==e.VK_ENTER)
+				{
+				if(priorityField.getText().isEmpty())
+				{
+					JOptionPane.showMessageDialog(null,"This Field should not be empty");
+					priorityField.requestFocus();
+				}
+				typeBox.requestFocus();
+			}
 	}
+		});
+			typeBox.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if(e.getKeyChar() == KeyEvent.VK_ENTER)
+					{saveButton.requestFocus();}
+			}
+		});
+		setTitle("Update Group Panel");
+		saveButton.addKeyListener(new KeyAdapter() {
+		@Override
+		public void keyPressed(KeyEvent e) {
+			if (e.getKeyChar() == KeyEvent.VK_ENTER) {
+				if(nameField.getText().isEmpty() || aliasField.getText().isEmpty() || priorityField.getText().isEmpty())
+				{
+					JOptionPane.showMessageDialog(null,"Some of the major fields are empty");
+					nameField.requestFocus();
+				}
+				else
+UpdateTable(dtm,sp.getSelectedRow());
+			}
+		}
+	});
+		sp.addWindowFocusListener(new WindowAdapter() {
+			
+			@Override
+			public void windowLostFocus(WindowEvent e) {
+				nameField.setText(sp.get("NAME"));
+				aliasField.setText(sp.get("ALIAS"));
+				priorityField.setText(sp.get("PRIORITY"));
+				typeBox.setSelectedItem(sp.get("HEAD_ALIAS"));
+				aliasField.setEnabled(false);
+			
+	saveButton.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if(nameField.getText().isEmpty() || aliasField.getText().isEmpty() || priorityField.getText().isEmpty())
+						{
+							JOptionPane.showMessageDialog(null,"Some of the major fields are empty");
+							nameField.requestFocus();
+						}
+						else
+							UpdateTable(dtm,sp.getSelectedRow());
+				}
+			});
+			
+		}
+	});
+				
+		setTitle("Update Group Panel");
+			}
+			
+				
 	@Override
 	public void viewRecord() {
-		// TODO Auto-generated method stub
-		
+		setVisible(true);
+		SearchFrame sf=new SearchFrame("ALIAS,NAME","GROUPMASTER");
+		sf.setVisible(true);
+		sf.addWindowListener(new WindowAdapter() {
+		public void windowClosed(WindowEvent e)
+		{
+			nameField.setText(sf.get("NAME"));
+			aliasField.setText(sf.get("ALIAS"));
+			priorityField.setText(sf.get("PRIORITY"));
+			typeBox.setSelectedItem(sf.get("HEAD_ALIAS"));
+		}
+		});
+		nameField.setEditable(false);
+		aliasField.setEditable(false);
+		priorityField.setEditable(false);
+		typeBox.setEditable(false);
+		saveButton.setEnabled(false);
 	}
 }

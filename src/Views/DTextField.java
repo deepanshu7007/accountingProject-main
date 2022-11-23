@@ -7,6 +7,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 public class DTextField extends JTextField implements KeyListener{
 	public DTextField() {
+		
 		setFont(new Font("Times New Roman", Font.BOLD, 30));
 		addKeyListener(this);
 	}

@@ -15,6 +15,8 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import javax.swing.JTextField;
 import javax.swing.JButton;
+import javax.swing.SwingConstants;
+import org.jdesktop.swingx.JXTreeTable;
 
 /**
  * TODO Put here a description of what this class does.
@@ -57,10 +59,11 @@ public class LoginFrame extends JFrame {
 		gbl_contentPane.columnWidths = new int[]{158, 0};
 		gbl_contentPane.rowHeights = new int[]{183, 27, 0, 0, 0, 0, 0, 0, 0, 0};
 		gbl_contentPane.columnWeights = new double[]{1.0, Double.MIN_VALUE};
-		gbl_contentPane.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_contentPane.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		contentPane.setLayout(gbl_contentPane);
 		
 		JLabel CompanyName = new JLabel("Company Name");
+		CompanyName.setHorizontalAlignment(SwingConstants.CENTER);
 		CompanyName.setOpaque(true);
 		CompanyName.setBackground(Color.DARK_GRAY);
 		CompanyName.setForeground(Color.WHITE);
@@ -109,6 +112,14 @@ public class LoginFrame extends JFrame {
 		gbc_textField_1.gridx = 0;
 		gbc_textField_1.gridy = 4;
 		contentPane.add(textField_1, gbc_textField_1);
+		
+		JXTreeTable treeTable = new JXTreeTable();
+		GridBagConstraints gbc_treeTable = new GridBagConstraints();
+		gbc_treeTable.insets = new Insets(0, 0, 5, 0);
+		gbc_treeTable.fill = GridBagConstraints.BOTH;
+		gbc_treeTable.gridx = 0;
+		gbc_treeTable.gridy = 5;
+		contentPane.add(treeTable, gbc_treeTable);
 		
 		JButton btnNewButton = new JButton("Sign-in");
 		btnNewButton.setFont(new Font("Tahoma", Font.PLAIN, 20));

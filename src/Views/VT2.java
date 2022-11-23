@@ -63,7 +63,7 @@ import javax.swing.table.TableCellEditor;
 import com.toedter.calendar.JDateChooser;
 import CheckCodes.MainInintials;
 import SearchModule.SearchFrameTest;
-public class VoucherTransaction extends JFrame {
+public class VT2 extends JFrame {
 	private JPanel contentPane;
 	private JTextField NarrationField;
 	private JDateChooser textField_1;
@@ -72,7 +72,7 @@ public class VoucherTransaction extends JFrame {
 	private int row;
 	private JTable table;
 
-	public VoucherTransaction(MainInintials mi) {
+	public VT2(MainInintials mi) {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1549, 768);
 		contentPane = new JPanel();
@@ -433,7 +433,7 @@ public class VoucherTransaction extends JFrame {
 				try {
 					MainInintials mi = new MainInintials(rs);
 					UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
-					VoucherTransaction frame = new VoucherTransaction(mi);
+					VT2 frame = new VT2(mi);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();

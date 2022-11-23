@@ -3,9 +3,13 @@ import java.awt.EventQueue;
 import java.awt.FlowLayout;
 
 import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
 
+import LedgerMaster.OpenDataBase;
+import TransactionsMaster.DataBaseModel;
 import accountingproject.DataModelTools;
 import accountingproject.DeleteFrame;
 import accountingproject.MasterPresistables;
@@ -25,11 +29,12 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Vector;
 
 import javax.swing.JButton;
 import java.awt.Color;
 import java.awt.SystemColor;
-public class GstMaster extends JFrame  implements MasterPresistables{
+public class GstMaster extends JInternalFrame  implements MasterPresistables{
 	private JPanel contentPane;
 	private DTextField NameField;
 	private DTextField IgstInField;
@@ -49,18 +54,7 @@ public class GstMaster extends JFrame  implements MasterPresistables{
 	private DTextField SgstOutField;
 	private DTextField CessACField;
 	private JButton SaveButton;
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					GstMaster frame = new GstMaster();
-					frame.editRecord();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+	
 	public GstMaster(){
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 990, 588);
@@ -437,12 +431,12 @@ public class GstMaster extends JFrame  implements MasterPresistables{
 		contentPane.add(CancelButton, gbc_CancelButton);
 	}
 	@Override
-	public void insertRecord() {
-		Connection con;
-		try {
-			con = DriverManager.getConnection("jdbc:mysql://localhost:3306/accountingdatabase", "root", "Anshu12345$");
+	public void insertRecord(DefaultTableModel dtm) {
+		OpenDataBase db = new OpenDataBase();
+		Connection con = db.getDataBaseConnection();
+		try {			
 			PreparedStatement stmt = con.prepareStatement(
-					"INSERT INTO GSTMASTER (NAME,TAX,CESS,IGST,CGST,SGST,PURCHASEACCOUNTIS,SALESACCOUNTIS,IGSTINPUTAC,IGSTOUTPUTAC,SGSTINPUTAC,SGSTOUTPUTAC,CESSAC,CGSTOUTPUTAC,PURCHASEACCOUNTLCL) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+					"INSERT INTO GSTMASTER (NAME,TAX,CESS,IGST,CGST,SGST,PURCHASEACCOUNTIS,SALESACCOUNTIS,IGSTINPUTAC,IGSTOUTPUTAC,SGSTINPUTAC,SGSTOUTPUTAC,CESSAC,CGSTOUTPUTAC,PURCHASEACCOUNTLCL,ALIAS) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 			setVisible(true);
 			SaveButton.addActionListener(new ActionListener() {
 				@Override
@@ -452,6 +446,10 @@ public class GstMaster extends JFrame  implements MasterPresistables{
 							JOptionPane.showMessageDialog(null, "Some of the major fields are empty");
 							NameField.requestFocus();
 						} else {
+							Vector<String> rowData = new Vector<String>();
+							rowData.add(TaxField.getText());
+							rowData.add(NameField.getText());
+							dtm.addRow(rowData);
 						 stmt.setString(1, NameField.getText());
 						 stmt.setString(2, TaxField.getText());
 						 stmt.setString(3, CessField.getText());
@@ -467,6 +465,7 @@ public class GstMaster extends JFrame  implements MasterPresistables{
 						 stmt.setString(13, CessACField.getText());
 						 stmt.setString(14, CgstOutField.getText());
 						 stmt.setString(15, PurcharLclField.getText());
+						 stmt.setString(16, TaxField.getText());
 							if (stmt.executeUpdate() > 0) {
 								JOptionPane.showMessageDialog(null, "Records Inserted Successfully");
 								NameField.requestFocus();
@@ -487,6 +486,8 @@ public class GstMaster extends JFrame  implements MasterPresistables{
 								SgstInField.setText("");         
 								SgstOutField.setText("");        
 								CessACField.setText("");         
+							con.close();
+							System.out.print("connection closed for GST");
 							} else {
 								JOptionPane.showMessageDialog(null, "Something went wrong");
 								NameField.requestFocus();
@@ -494,18 +495,6 @@ public class GstMaster extends JFrame  implements MasterPresistables{
 						}
 					} catch (SQLException exception) {
 						JOptionPane.showMessageDialog(null, exception.toString());
-					}
-				}
-			});
-			this.addWindowListener(new WindowAdapter() {
-				@Override
-				public void windowClosed(WindowEvent evt) {
-					try {
-						System.out.print("Connection status:");
-						con.close();
-						System.out.println(con.isClosed());
-					} catch (SQLException exception) {
-						exception.printStackTrace();
 					}
 				}
 			});
@@ -554,12 +543,13 @@ public class GstMaster extends JFrame  implements MasterPresistables{
 		frame.setVisible(true);
 	} 
 	@Override
-	public void editRecord() {
+	public void editRecord(DefaultTableModel dtm) {
 		SearchFrame sf;
 		NameField.setEditable(false);
-		Connection con;
+		
 		try {
-			
+			OpenDataBase db = new OpenDataBase();
+			Connection con = db.getDataBaseConnection();
 			sf = new SearchFrame("ALIAS,NAME", "GSTMASTER");sf.setNameRadioButton();
 			sf.setVisible(true);
 			sf.addWindowListener(new WindowAdapter() {
@@ -585,7 +575,7 @@ public class GstMaster extends JFrame  implements MasterPresistables{
 					setVisible(true);
 				}
 			});
-			con = DriverManager.getConnection("jdbc:mysql://localhost:3306/accountingdatabase", "root", "Anshu12345$");
+			
 			PreparedStatement stmt = con.prepareStatement(
 					
 					"UPDATE GSTMASTER SET TAX=?,CESS=?,IGST=?,CGST=?,SGST=?,PURCHASEACCOUNTIS=?,SALESACCOUNTIS=?,IGSTINPUTAC=?,IGSTOUTPUTAC=?,SGSTINPUTAC=?,SGSTOUTPUTAC=?,CESSAC=?,CGSTOUTPUTAC=?,PURCHASEACCOUNTLCL=?,SALESACCOUNTLCL=?,CGSTINPUTAC=? WHERE NAME=?");
@@ -617,6 +607,8 @@ public class GstMaster extends JFrame  implements MasterPresistables{
 							 stmt.setString(16, CgstInField.getText());
 							 if (stmt.executeUpdate() > 0) {
 								JOptionPane.showMessageDialog(null, "Records UPDATED Successfully");
+								dtm.setValueAt(TaxField.getText(),sf.getSelectedRow(),0);
+								dtm.setValueAt(NameField.getText(),sf.getSelectedRow(),0);
 								NameField.requestFocus();
 								NameField.setText("");           
 								IgstInField.setText("");         
@@ -645,18 +637,7 @@ public class GstMaster extends JFrame  implements MasterPresistables{
 					}
 				}
 			});
-			this.addWindowListener(new WindowAdapter() {
-				@Override
-				public void windowClosed(WindowEvent evt) {
-					try {
-						System.out.print("Connection status:");
-						con.close();
-						System.out.println(con.isClosed());
-					} catch (SQLException exception) {
-						exception.printStackTrace();
-					}
-				}
-			});
+			con.close();
 		} catch (SQLException exp) {
 			System.out.println(exp);
 			JOptionPane.showMessageDialog(null, "SOMETHING WENT WRONG DATABASE NOT CONNECTED");
@@ -667,35 +648,33 @@ public class GstMaster extends JFrame  implements MasterPresistables{
 	public void viewRecord() {
 		SaveButton.setEnabled(false);
 		SearchFrame sf;
-		try {
-			sf = new SearchFrame("ALIAS,NAME", "GSTMASTER");
-			sf.setVisible(true);
-			sf.addWindowListener(new WindowAdapter() {
-				@Override
-				public void windowClosed(WindowEvent evt) {
-					NameField.setText(sf.get("NAME"));           
-					IgstInField.setText(sf.get("IGSTINPUTAC"));         
-					TaxField.setText(sf.get("TAX"));            
-					CessField.setText(sf.get("CESS"));           
-					CgstField.setText(sf.get("CGST"));           
-					SgstField.setText(sf.get("SGST"));           
-					IgstField.setText(sf.get("IGST"));           
-					PurcharLclField.setText(sf.get("PURCHASEACCOUNTLCL"));     
-					SalesLclField.setText(sf.get("SALESACCOUNTLCL"));       
-					PurchaseIntField.setText(sf.get("PURCHASEACCOUNTIS"));    
-					SalesIntField.setText(sf.get("SALESACCOUNTIS"));       
-					IgstOutField.setText(sf.get("IGSTOUTPUTAC"));        
-					CgstInField.setText(sf.get("CGSTINPUTAC"));         
-					CgstOutField.setText(sf.get("CGSTOUTPUTAC"));        
-					SgstInField.setText(sf.get("SGSTINPUTAC"));         
-					SgstOutField.setText(sf.get("SGSTOUTPUTAC"));        
-					CessACField.setText(sf.get("CESSAC"));    
-					setVisible(true);
-				}
-			});
-		} catch (SQLException exception) {
-			exception.printStackTrace();
-		}
+		sf = new SearchFrame("ALIAS,NAME", "GSTMASTER");
+		sf.setVisible(true);
+		sf.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosed(WindowEvent evt) {
+				NameField.setText(sf.get("NAME"));           
+				IgstInField.setText(sf.get("IGSTINPUTAC"));         
+				TaxField.setText(sf.get("TAX"));            
+				CessField.setText(sf.get("CESS"));           
+				CgstField.setText(sf.get("CGST"));           
+				SgstField.setText(sf.get("SGST"));           
+				IgstField.setText(sf.get("IGST"));           
+				PurcharLclField.setText(sf.get("PURCHASEACCOUNTLCL"));     
+				SalesLclField.setText(sf.get("SALESACCOUNTLCL"));       
+				PurchaseIntField.setText(sf.get("PURCHASEACCOUNTIS"));    
+				SalesIntField.setText(sf.get("SALESACCOUNTIS"));       
+				IgstOutField.setText(sf.get("IGSTOUTPUTAC"));        
+				CgstInField.setText(sf.get("CGSTINPUTAC"));         
+				CgstOutField.setText(sf.get("CGSTOUTPUTAC"));        
+				SgstInField.setText(sf.get("SGSTINPUTAC"));         
+				SgstOutField.setText(sf.get("SGSTOUTPUTAC"));        
+				CessACField.setText(sf.get("CESSAC"));    
+				setVisible(true);
+			}
+		});
 	}
+	
+	
 
 }

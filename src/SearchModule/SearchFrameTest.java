@@ -3,6 +3,7 @@ package SearchModule;
 import java.awt.BorderLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
@@ -80,11 +81,18 @@ public class SearchFrameTest extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				try {
 				Name = (table.getValueAt(table.getSelectedRow(), 1).toString());
 				alias = (table.getValueAt(table.getSelectedRow(), 0).toString());
 				SelectedRow.add(alias);
 				SelectedRow.add(Name);
 				dispose();
+				}
+				catch(ArrayIndexOutOfBoundsException exp)
+				{
+					JOptionPane.showMessageDialog(null, "NO RECORD FOUND");
+					FilterText.setText("");
+				}
 			}
 		});
 		table.addMouseListener(new MouseAdapter() {
@@ -136,8 +144,16 @@ public class SearchFrameTest extends JFrame {
 				}
 				if (e.getKeyChar() == KeyEvent.VK_ENTER || e.getKeyChar() == KeyEvent.VK_DOWN) {
 					table.requestFocus();
+					try {
 					table.setRowSelectionInterval(0, 0);
-				}
+					}catch(IllegalArgumentException exp)
+					{
+						System.out.println("Something went wrong");
+						JOptionPane.showMessageDialog(null, "RECORD NOT FOUND");
+						FilterText.setText("");
+						FilterText.requestFocus();
+					}
+					}
 				String text = FilterText.getText();
 				if (text.length() == 0) {
 					sorter.setRowFilter(null);

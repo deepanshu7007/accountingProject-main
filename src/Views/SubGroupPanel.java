@@ -1,10 +1,13 @@
 package Views;
 import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
 
 import LedgerMaster.OpenDataBase;
 import accountingproject.DataModelTools;
+import accountingproject.MasterPresistables;
 import accountingproject.mainInintials;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -16,6 +19,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Vector;
 import java.awt.Font;
 import javax.swing.JButton;
 import java.awt.event.KeyAdapter;
@@ -25,7 +29,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.Color;
-public class SubGroupPanel extends JFrame{
+public class SubGroupPanel extends JInternalFrame implements MasterPresistables{
 	protected DTextField nameField;
 	protected DTextField aliasField;
 	protected DTextField priorityField;
@@ -33,11 +37,12 @@ public class SubGroupPanel extends JFrame{
 	protected DTextField groupField;
 	protected JButton saveButton;
 	protected SearchFrame sf;
-	protected mainInintials.MainTools mi;
-	public SubGroupPanel(String title) {
+	private String aliasName;
+	
+	public SubGroupPanel() {
 		
-		setTitle("Sub-Group-Master "+title);
-		mi = new mainInintials.MainTools();
+		
+		
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 905, 777);
 		contentPane = new JPanel();
@@ -160,43 +165,90 @@ public class SubGroupPanel extends JFrame{
 		gbc_cancelButton.gridx = 0;
 		gbc_cancelButton.gridy = 11;
 		contentPane.add(cancelButton, gbc_cancelButton);
-		if(title.equals("INSERT"))
-		{
-			 InsertSubGroup();
-		}
-		if(title.equals("MODIFY"))
-		{
-			try {
-				UpdateSubGroup();
-			} catch (SQLException exception) {
-				exception.printStackTrace();
-			}
-		}
-		if(title.equals("VIEW"))
-		{
-			saveButton.setEnabled(false);
-			setVisible(true);
-			sf = new SearchFrame("ALIAS,NAME","SUBGROUPMASTER");
-			sf.setVisible(true);
-			sf.addWindowListener(new WindowAdapter() {
-			public void windowClosed(WindowEvent e)
-			{
-				nameField.setText(sf.get("NAME"));
-				aliasField.setText(sf.get("ALIAS"));
-				priorityField.setText(sf.get("PRIORITY"));
-				groupField.setText(sf.get("GROUP_ALIAS"));
-			}
-			});
-			nameField.setEditable(false);
-			aliasField.setEditable(false);
-			priorityField.setEnabled(false);
-			groupField.setEditable(false);
-		}
+		
 	}
 	
-	void InsertSubGroup()
+	
+	void InsertTable(DefaultTableModel dtm)
 	{
-			nameField.addKeyListener(new KeyAdapter() {
+		try {
+			OpenDataBase db=new OpenDataBase();
+			PreparedStatement stmt=db.getDataBaseConnection().prepareStatement("INSERT INTO SUBGROUPMASTER(NAME,ALIAS,PRIORITY,GROUP_ALIAS) VALUES (?,?,?,?)");
+			stmt.setString(1, nameField.getText());
+			stmt.setString(2,aliasField.getText());
+			stmt.setString(3, priorityField.getText());
+			stmt.setString(4, aliasName);
+			if (stmt.executeUpdate()>0) {
+				nameField.requestFocus();
+				Vector<String> rowData = new Vector<>();
+				rowData.add(aliasField.getText());
+				rowData.add(nameField.getText());
+				dtm.addRow(rowData);
+				JOptionPane.showMessageDialog(null, "Record Inserted successfully");
+				nameField.setText("");
+				aliasField.setText("");
+				priorityField.setText("");	
+				groupField.setText("");
+			} else {
+				JOptionPane.showMessageDialog(null, "Something Went Wrong");
+			}
+			db.ConClosed();
+			System.out.println("CONNECTION CLOSED FOR INSERT TABLE SUBGROUP");
+		} catch (SQLException exception) {
+			if(exception.getErrorCode()==1062)
+			{
+				JOptionPane jp = new JOptionPane();
+				addKeyListener(new KeyAdapter() {
+					public void keyReleased(KeyEvent e) {
+						e.consume();
+						nameField.requestFocusInWindow();
+					}});
+				jp.showMessageDialog(null,"Alias Name ' "+aliasField.getText()+" ' already exists");	
+			}
+			exception.printStackTrace();
+		}
+	}
+	void UpdateTable(DefaultTableModel dtm,int row)
+	{
+		try {
+			OpenDataBase db = new OpenDataBase();
+			PreparedStatement stmt=db.getDataBaseConnection().prepareStatement("UPDATE SUBGROUPMASTER SET NAME=?,PRIORITY=?,GROUP_ALIAS=?  WHERE ALIAS=?");
+			stmt.setString(1, nameField.getText());
+			stmt.setString(4,aliasField.getText());
+			stmt.setString(2, priorityField.getText());
+			stmt.setString(3, groupField.getText());
+			if (stmt.executeUpdate()>0) {
+				nameField.requestFocus();
+				JOptionPane.showMessageDialog(null, "Record UPDATED successfully");
+				dtm.setValueAt(aliasField.getText(), row, 0);
+				dtm.setValueAt(nameField.getText(), row, 1);
+				nameField.setText("");
+				aliasField.setText("");
+				priorityField.setText("");	
+				groupField.setText("");
+			} else {
+				JOptionPane.showMessageDialog(null, "Something Went Wrong");
+			}
+			db.ConClosed();
+			System.out.println("CONNECTION CLOSED FOR UPDATE SUBGROUP");
+		} catch (SQLException exception) {
+			if(exception.getErrorCode()==1062)
+			{
+				JOptionPane jp = new JOptionPane();
+				addKeyListener(new KeyAdapter() {
+					public void keyReleased(KeyEvent e) {
+						e.consume();
+						nameField.requestFocusInWindow();
+					}});
+				jp.showMessageDialog(null,"Alias Name ' "+aliasField.getText()+" ' already exists");	
+			}
+			exception.printStackTrace();
+		}
+	}
+
+	@Override
+	public void insertRecord(DefaultTableModel dtm) {
+		nameField.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if(e.getKeyChar() == KeyEvent.VK_ENTER)
@@ -261,6 +313,7 @@ public class SubGroupPanel extends JFrame{
 							public void windowClosed(WindowEvent evt)
 							{
 								groupField.setText(sf.get("NAME"));
+								aliasName = sf.get("ALIAS");
 							}
 						});
 						
@@ -278,7 +331,7 @@ public class SubGroupPanel extends JFrame{
 				if(nameField.getText().isEmpty()||aliasField.getText().isEmpty()||priorityField.getText().isEmpty()||groupField.getText().isEmpty()) {
 					JOptionPane.showMessageDialog(null, "Some of the major fields are Empty");
 				}else
-				InsertTable();
+				InsertTable(dtm);
 			}
 		});
 		saveButton.addKeyListener(new KeyAdapter() {
@@ -290,164 +343,125 @@ public class SubGroupPanel extends JFrame{
 						JOptionPane.showMessageDialog(null, "Some of the major fields are Empty");
 					}
 					else
-						InsertTable();
+						InsertTable(dtm);
 				}
 			}
 		});
 		
-		}
-	void UpdateSubGroup() throws SQLException
-	{
-			sf = new SearchFrame("ALIAS,NAME","SUBGROUPMASTER");
-			sf.setVisible(true);
-			sf.setAlwaysOnTop(true);
-			 sf.addWindowListener(new WindowAdapter(){  
-		            public void windowClosed(WindowEvent e) {  
-		            	nameField.setText(sf.get("NAME"));
-		            	aliasField.setText(sf.get("ALIAS"));
-		            	priorityField.setText(sf.get("PRIORITY"));
-		            	groupField.setText(sf.get("GROUP_ALIAS"));
-		            }  
-		        });  
-			aliasField.setEnabled(false);
-			nameField.addKeyListener(new KeyAdapter() {
-				@Override
-				public void keyPressed(KeyEvent e) {
-					if(e.getKeyChar() == KeyEvent.VK_ENTER)
+	}
+
+	@Override
+	public void deleteRecord() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void editRecord(DefaultTableModel dtm) {
+		sf = new SearchFrame("ALIAS,NAME","SUBGROUPMASTER");
+		sf.setVisible(true);
+		sf.setAlwaysOnTop(true);
+		 sf.addWindowListener(new WindowAdapter(){  
+	            public void windowClosed(WindowEvent e) {  
+	            	nameField.setText(sf.get("NAME"));
+	            	aliasField.setText(sf.get("ALIAS"));
+	            	priorityField.setText(sf.get("PRIORITY"));
+	            	groupField.setText(sf.get("GROUP_ALIAS"));
+	            }  
+	        });  
+		aliasField.setEnabled(false);
+		nameField.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if(e.getKeyChar() == KeyEvent.VK_ENTER)
+				{
+					if(nameField.getText().isEmpty())
 					{
-						if(nameField.getText().isEmpty())
-						{
-							JOptionPane.showMessageDialog(null, "This field should not be empty");
-							nameField.requestFocus();
-						}
-						else
-						{
-							priorityField.requestFocus();
-						}
-						}
-				}
-			});
-				priorityField.addKeyListener(new KeyAdapter() {
-				@Override
-				public void keyPressed(KeyEvent e) {
-					if(e.getKeyChar() == KeyEvent.VK_ENTER)
-					{
-						if(nameField.getText().isEmpty())
-						{
-							JOptionPane.showMessageDialog(null, "This field should not be empty");
-							groupField.requestFocus();
-						}else
-					groupField.requestFocus();
+						JOptionPane.showMessageDialog(null, "This field should not be empty");
+						nameField.requestFocus();
 					}
+					else
+					{
+						priorityField.requestFocus();
+					}
+					}
+			}
+		});
+			priorityField.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if(e.getKeyChar() == KeyEvent.VK_ENTER)
+				{
+					if(nameField.getText().isEmpty())
+					{
+						JOptionPane.showMessageDialog(null, "This field should not be empty");
+						groupField.requestFocus();
+					}else
+				groupField.requestFocus();
 				}
-			});
-				
-				groupField.addKeyListener(new KeyAdapter() {
-				public void keyPressed(KeyEvent e) {
-							if(e.getKeyChar() == e.VK_ENTER)
-							{
-									
-										sf = new SearchFrame("ALIAS,NAME","GroupMaster");
-										sf.setVisible(true);
-										 sf.addWindowListener(new WindowAdapter(){  
-									            public void windowClosed(WindowEvent e) {  
-									            	groupField.setText(sf.get("NAME"));
-									            }  
-									        });  
-								}
-						}
-			});
-				saveButton.addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseClicked(MouseEvent e) {
+			}
+		});
+			
+			groupField.addKeyListener(new KeyAdapter() {
+			public void keyPressed(KeyEvent e) {
+						if(e.getKeyChar() == e.VK_ENTER)
+						{
+								
+									sf = new SearchFrame("ALIAS,NAME","GROUPMASTER");
+									sf.setVisible(true);
+									 sf.addWindowListener(new WindowAdapter(){  
+								            public void windowClosed(WindowEvent e) {  
+								            	groupField.setText(sf.get("NAME"));
+								            	aliasName = sf.get("ALIAS");
+								            }  
+								        });  
+							}
+					}
+		});
+			saveButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if(nameField.getText().isEmpty()||aliasField.getText().isEmpty()||priorityField.getText().isEmpty()||groupField.getText().isEmpty()) {
+					JOptionPane.showMessageDialog(null, "Some of the major fields are Empty");
+				}else
+				UpdateTable(dtm,sf.getSelectedRow());
+			}
+		});
+		saveButton.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if(e.getKeyChar()==KeyEvent.VK_ENTER)
+				{
 					if(nameField.getText().isEmpty()||aliasField.getText().isEmpty()||priorityField.getText().isEmpty()||groupField.getText().isEmpty()) {
 						JOptionPane.showMessageDialog(null, "Some of the major fields are Empty");
-					}else
-					UpdateTable();
-				}
-			});
-			saveButton.addKeyListener(new KeyAdapter() {
-				@Override
-				public void keyPressed(KeyEvent e) {
-					if(e.getKeyChar()==KeyEvent.VK_ENTER)
-					{
-						if(nameField.getText().isEmpty()||aliasField.getText().isEmpty()||priorityField.getText().isEmpty()||groupField.getText().isEmpty()) {
-							JOptionPane.showMessageDialog(null, "Some of the major fields are Empty");
-						}
-						else
-							UpdateTable();
 					}
+					else
+						UpdateTable(dtm,sf.getSelectedRow());
 				}
-			});
 			}
-	void InsertTable()
-	{
-		try {
-			OpenDataBase db=new OpenDataBase();
-			PreparedStatement stmt=db.getDataBaseConnection().prepareStatement("INSERT INTO SUBGROUPMASTER(NAME,ALIAS,PRIORITY,GROUP_ALIAS) VALUES (?,?,?,?)");
-			stmt.setString(1, nameField.getText());
-			stmt.setString(2,aliasField.getText());
-			stmt.setString(3, priorityField.getText());
-			stmt.setString(4, groupField.getText());
-			if (stmt.executeUpdate()>0) {
-				nameField.requestFocus();
-				JOptionPane.showMessageDialog(null, "Record Inserted successfully");
-				nameField.setText("");
-				aliasField.setText("");
-				priorityField.setText("");	
-				groupField.setText("");
-			} else {
-				JOptionPane.showMessageDialog(null, "Something Went Wrong");
-			}
-			db.ConClosed();
-			System.out.println("CONNECTION CLOSED FOR INSERT TABLE SUBGROUP");
-		} catch (SQLException exception) {
-			if(exception.getErrorCode()==1062)
-			{
-				JOptionPane jp = new JOptionPane();
-				addKeyListener(new KeyAdapter() {
-					public void keyReleased(KeyEvent e) {
-						e.consume();
-						nameField.requestFocusInWindow();
-					}});
-				jp.showMessageDialog(null,"Alias Name ' "+aliasField.getText()+" ' already exists");	
-			}
-			exception.printStackTrace();
-		}
+		});
+		
 	}
-	void UpdateTable()
-	{
-		try {
-			OpenDataBase db = new OpenDataBase();
-			PreparedStatement stmt=db.getDataBaseConnection().prepareStatement("UPDATE SUBGROUPMASTER SET NAME=?,PRIORITY=?,GROUP_ALIAS=?  WHERE ALIAS=?");
-			stmt.setString(1, nameField.getText());
-			stmt.setString(4,aliasField.getText());
-			stmt.setString(2, priorityField.getText());
-			stmt.setString(3, groupField.getText());
-			if (stmt.executeUpdate()>0) {
-				nameField.requestFocus();
-				JOptionPane.showMessageDialog(null, "Record UPDATED successfully");
-				nameField.setText("");
-				aliasField.setText("");
-				priorityField.setText("");	
-				groupField.setText("");
-			} else {
-				JOptionPane.showMessageDialog(null, "Something Went Wrong");
-			}
-			db.ConClosed();
-			System.out.println("CONNECTION CLOSED FOR UPDATE SUBGROUP");
-		} catch (SQLException exception) {
-			if(exception.getErrorCode()==1062)
-			{
-				JOptionPane jp = new JOptionPane();
-				addKeyListener(new KeyAdapter() {
-					public void keyReleased(KeyEvent e) {
-						e.consume();
-						nameField.requestFocusInWindow();
-					}});
-				jp.showMessageDialog(null,"Alias Name ' "+aliasField.getText()+" ' already exists");	
-			}
-			exception.printStackTrace();
+
+	@Override
+	public void viewRecord() {
+		saveButton.setEnabled(false);
+		setVisible(true);
+		sf = new SearchFrame("ALIAS,NAME","SUBGROUPMASTER");
+		sf.setVisible(true);
+		sf.addWindowListener(new WindowAdapter() {
+		public void windowClosed(WindowEvent e)
+		{
+			nameField.setText(sf.get("NAME"));
+			aliasField.setText(sf.get("ALIAS"));
+			priorityField.setText(sf.get("PRIORITY"));
+			groupField.setText(sf.get("GROUP_ALIAS"));
 		}
+		});
+		nameField.setEditable(false);
+		aliasField.setEditable(false);
+		priorityField.setEnabled(false);
+		groupField.setEditable(false);
+		
 	}
 }
